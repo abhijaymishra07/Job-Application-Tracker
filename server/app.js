@@ -1,5 +1,7 @@
 require('dotenv').config();
 
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
@@ -27,6 +29,7 @@ app.get('/api/health', (_req, res) => {
     service: 'Job Application Tracker API',
     mongodb: 'connected',
     changeStreams: live.enabled,
+    demoReadOnly: process.env.DEMO_READ_ONLY === 'true',
     team: ['24BCE0768', '24BCE2016'],
   });
 });
@@ -37,6 +40,12 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/meta', metaRoutes);
 app.use('/api/insights', insightsRoutes);
 app.use('/api/notifications', notificationRoutes);
+
+const clientDist = path.join(__dirname, '../client/dist');
+if (fs.existsSync(clientDist)) {
+  app.use(express.static(clientDist));
+  app.get(/^\/(?!api\/).*/, (_req, res) => res.sendFile(path.join(clientDist, 'index.html')));
+}
 
 app.use((err, _req, res, _next) => {
   if (err.code === 'LIMIT_FILE_SIZE') {

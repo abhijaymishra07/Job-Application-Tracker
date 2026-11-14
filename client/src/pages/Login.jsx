@@ -8,6 +8,7 @@ export default function Login() {
   const [mode, setMode] = useState('login');
   const [error, setError] = useState('');
   const [apiUp, setApiUp] = useState(null);
+  const [demoReadOnly, setDemoReadOnly] = useState(false);
   const [form, setForm] = useState({
     name: '',
     email: 'abhijaymishra07@gmail.com',
@@ -18,7 +19,10 @@ export default function Login() {
   useEffect(() => {
     api
       .get('/health')
-      .then(() => setApiUp(true))
+      .then((res) => {
+        setApiUp(true);
+        setDemoReadOnly(Boolean(res.data.demoReadOnly));
+      })
       .catch(() => setApiUp(false));
   }, []);
 
@@ -59,6 +63,11 @@ export default function Login() {
         </div>
         <h1>{mode === 'login' ? 'Welcome back' : 'Create your workspace'}</h1>
         <p>Keep applications, interviews, notes, and documents in one place.</p>
+        {mode === 'login' && demoReadOnly ? (
+          <small style={{ display: 'block', marginBottom: 12, opacity: 0.75 }}>
+            The pre-filled demo account is view-only. Create an account to add your own applications.
+          </small>
+        ) : null}
         {apiUp === false ? (
           <div className="error">JobTrack is temporarily unavailable. Please try again.</div>
         ) : null}

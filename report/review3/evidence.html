@@ -1,0 +1,192 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@500;600&display=swap');
+body { margin: 0; padding: 20px; background: #fff; width: 1000px; }
+.term { border: 1px solid #D5DEE8; border-radius: 10px; overflow: hidden; margin-bottom: 30px; background: #FBFCFE; }
+.bar { display: flex; align-items: center; gap: 7px; padding: 9px 14px; background: #EEF2F7; border-bottom: 1px solid #D5DEE8; }
+.dot { width: 11px; height: 11px; border-radius: 50%; }
+.r { background: #F87171; } .y { background: #FBBF24; } .g { background: #34D399; }
+.title { margin-left: 10px; font: 600 13px Inter, sans-serif; color: #334155; }
+.body { padding: 12px 16px 14px; }
+pre { margin: 0; font: 13px/1.5 'JetBrains Mono', monospace; font-variant-ligatures: none; white-space: pre-wrap; word-break: break-word; }
+.cmd { color: #0F172A; font-weight: 600; }
+.cmd + .out { margin: 4px 0 14px; }
+.out:last-child { margin-bottom: 0; }
+.out { color: #334155; }
+.err { color: #B91C1C; }
+.prompt { color: #0F766E; font-weight: 600; }
+.prompt.cont { color: #94A3B8; }
+.comment { color: #64748B; font-weight: 400; font-style: italic; }
+</style></head><body><section class="term" id="mongo3_embedded_a">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">mongosh · Embedded rounds — $push ($each + $sort), arrayFilters, statusHistory</span></div>
+  <div class="body"><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.updateOne({ company: "Amazon" }, { $push: { rounds: { $each: [ { name: "Online assessment", scheduledAt: &lt;in 4 days&gt; }, { name: "Recruiter call", scheduledAt: &lt;in 1 day&gt; } ], $sort: { scheduledAt: 1 } } } })</pre><pre class="out">{ acknowledged: true, matchedCount: 1, modifiedCount: 1 }</pre><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.updateOne({ company: "Amazon" }, { $set: { "rounds.$[r].result": "Passed", "rounds.$[r].feedback": "Shortlisted for OA" } }, { arrayFilters: [ { "r._id": &lt;recruiter call id&gt; } ] })</pre><pre class="out">{ acknowledged: true, matchedCount: 1, modifiedCount: 1 }</pre><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.updateOne({ company: "Amazon" }, { $set: { status: "OA" }, $push: { statusHistory: { $each: [ { status: "OA", changedAt: new Date() } ], $slice: -50 } } })</pre><pre class="out">{ acknowledged: true, matchedCount: 1, modifiedCount: 1 }</pre></div>
+</section>
+<section class="term" id="mongo3_embedded_b">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">mongosh · Embedded rounds — $push ($each + $sort), arrayFilters, statusHistory</span></div>
+  <div class="body"><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.findOne({ company: "Amazon" }, { company: 1, status: 1, rounds: 1, statusHistory: 1 })</pre><pre class="out">{
+  company: "Amazon",
+  status: "OA",
+  rounds: [
+    { name: "Recruiter call", type: "HR", result: "Passed", feedback: "Shortlisted for OA" },
+    { name: "Online assessment", type: "OA", result: "Pending", feedback: "" }
+  ],
+  statusHistory: [
+    { status: "Applied", changedAt: "2026-09-25T06:00:00.000Z" },
+    { status: "OA", changedAt: "2026-10-21T06:04:30.883Z" }
+  ]
+}</pre></div>
+</section>
+<section class="term" id="mongo3_window">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">mongosh · Window functions — $dateDiff + $setWindowFields ($rank, $avg per source)</span></div>
+  <div class="body"><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.aggregate([
+<span class="prompt cont">...</span>   { $match: { status: { $in: ["Applied", "OA"] } } },
+<span class="prompt cont">...</span>   { $addFields: { daysWaiting: { $dateDiff: { startDate: "$lastMove", endDate: "$$NOW", unit: "day" } } } },
+<span class="prompt cont">...</span>   { $setWindowFields: { partitionBy: "$source", sortBy: { daysWaiting: -1 },
+<span class="prompt cont">...</span>       output: { rankInSource: { $rank: {} },
+<span class="prompt cont">...</span>                 sourceAvgWait: { $avg: "$daysWaiting", window: { documents: ["unbounded", "unbounded"] } } } } },
+<span class="prompt cont">...</span>   { $sort: { daysWaiting: -1 } }
+<span class="prompt cont">...</span> ])</pre><pre class="out">[
+  { company: "Zoho", status: "OA", source: "Campus", daysWaiting: 47, rankInSource: 1, sourceAvgWait: 47 },
+  { company: "Razorpay", status: "Applied", source: "Referral", daysWaiting: 34, rankInSource: 1, sourceAvgWait: 34 },
+  { company: "CRED", status: "Applied", source: "Company Site", daysWaiting: 9, rankInSource: 1, sourceAvgWait: 4.5 },
+  { company: "Microsoft", status: "OA", source: "LinkedIn", daysWaiting: 7, rankInSource: 1, sourceAvgWait: 7 },
+  { company: "Amazon", status: "OA", source: "Company Site", daysWaiting: 0, rankInSource: 2, sourceAvgWait: 4.5 }
+]</pre></div>
+</section>
+<section class="term" id="mongo3_unique_a">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">mongosh · Collation-aware partial unique index — unique_active_company_role</span></div>
+  <div class="body"><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.getIndexes().find(i =&gt; i.name === "unique_active_company_role")</pre><pre class="out">{
+  name: "unique_active_company_role",
+  key: { userId: 1, company: 1, role: 1 },
+  unique: true,
+  collation: { locale: "en", strength: 2 },
+  partialFilterExpression: { status: { $in: [ "Saved", "Applied", "OA", "Interview", "Offer" ] } }
+}</pre></div>
+</section>
+<section class="term" id="mongo3_unique_b">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">mongosh · Collation-aware partial unique index — unique_active_company_role</span></div>
+  <div class="body"><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.insertOne({ company: "GOOGLE", role: "software engineer intern", status: "Applied" })</pre><pre class="out err">MongoServerError: E11000 duplicate key error collection: job-tracker.applications index: unique_active_company_role collation: { locale: "en", strength: 2, … } dup key: { userId: ObjectId('6ad855ee6315c7b4e70f2441'), company: "CollationKey(0x354545353f31010a)", role: "CollationKey(0x4d45334f55294b3104314335394331314b0439434f314b43011c)" }</pre><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.insertOne({ company: "flipkart", role: "sde intern", status: "Applied" })  <span class="comment"> // earlier Flipkart row is Rejected</span></pre><pre class="out">{ acknowledged: true, insertedId: ObjectId('6ad855ee6315c7b4e70f2466') }</pre><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.find({ company: "google", role: "software engineer intern" }).collation({ locale: "en", strength: 2 })</pre><pre class="out">[ { company: "Google", role: "Software Engineer Intern", status: "Interview" } ]</pre></div>
+</section>
+<section class="term" id="mongo3_flexible_a">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">mongosh · Flexible schema — multikey index on tags, compound wildcard index on customFields</span></div>
+  <div class="body"><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.getIndexes()  <span class="comment"> // Review 3 flexible-schema indexes</span></pre><pre class="out">[
+  { name: "user_tags_multikey", key: { userId: 1, tags: 1 } },
+  { name: "user_custom_fields_wildcard", key: { userId: 1, "customFields.$**": 1 } }
+]</pre><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> .explain("queryPlanner") — index chosen for each query</pre><pre class="out">{
+  tagsQuery: { stage: "IXSCAN", indexName: "user_tags_multikey", isMultiKey: true },
+  customFieldQuery: { stage: "IXSCAN", indexName: "user_custom_fields_wildcard", isMultiKey: false }
+}</pre></div>
+</section>
+<section class="term" id="mongo3_flexible_b">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">mongosh · Flexible schema — multikey index on tags, compound wildcard index on customFields</span></div>
+  <div class="body"><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.find({ tags: "fintech" }, { company: 1, tags: 1 })</pre><pre class="out">[
+  { company: "CRED", tags: [ "fintech" ] },
+  { company: "Razorpay", tags: [ "fintech", "referral" ] },
+  { company: "PhonePe", tags: [ "fintech" ] }
+]</pre><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.find({ "customFields.CGPA cutoff": { $gte: 8 } }, { company: 1, customFields: 1 })</pre><pre class="out">[
+  { company: "Google", customFields: { "CGPA cutoff": 8, "Bond months": 0, "Work mode": "Hybrid" } },
+  { company: "Goldman Sachs", customFields: { "CGPA cutoff": 8.5 } }
+]</pre></div>
+</section>
+<section class="term" id="mongo3_changestream_a">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">mongosh · Change Streams — replica set, pre-images, live events</span></div>
+  <div class="body"><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.hello()  <span class="comment"> // change streams require a replica set</span></pre><pre class="out">{ setName: "testset", isWritablePrimary: true, hosts: [ "127.0.0.1:38947" ] }</pre><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.runCommand({ collMod: "applications", changeStreamPreAndPostImages: { enabled: true } })</pre><pre class="out">{ options: { changeStreamPreAndPostImages: { enabled: true } } }</pre></div>
+</section>
+<section class="term" id="mongo3_changestream_b">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">mongosh · Change Streams — replica set, pre-images, live events</span></div>
+  <div class="body"><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> const cs = db.applications.watch([ { $match: { operationType: { $in: ["insert", "update", "delete"] } } } ],
+<span class="prompt cont">...</span>   { fullDocument: "updateLookup", fullDocumentBeforeChange: "whenAvailable" })
+<span class="prompt cont">...</span> <span class="comment">// then: CRED status -&gt; OA, insert Notion, delete Notion</span></pre><pre class="out">[
+  {
+    operationType: "update",
+    documentKey: { _id: ObjectId('6ad855ee6315c7b4e70f2453') },
+    updateDescription: { updatedFields: [ "status", "updatedAt" ] },
+    fullDocument: { company: "CRED", status: "OA" },
+    fullDocumentBeforeChange: { company: "CRED", status: "Applied" }
+  },
+  {
+    operationType: "insert",
+    documentKey: { _id: ObjectId('6ad855ef6315c7b4e70f2467') },
+    fullDocument: { company: "Notion", status: "Applied" }
+  },
+  {
+    operationType: "delete",
+    documentKey: { _id: ObjectId('6ad855ef6315c7b4e70f2467') },
+    fullDocumentBeforeChange: { company: "Notion", status: "Applied" }
+  }
+]</pre></div>
+</section>
+<section class="term" id="mongo3_densify_a">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">mongosh · $densify + $fill — empty months become explicit zeros</span></div>
+  <div class="body"><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.aggregate([ { $group: { _id: &lt;month&gt;, count: { $sum: 1 } } } ])  <span class="comment"> // $group alone skips empty months</span></pre><pre class="out">{ _id: "2026-01", count: 1 }
+{ _id: "2026-03", count: 1 }
+{ _id: "2026-07", count: 2 }
+{ _id: "2026-08", count: 2 }
+{ _id: "2026-09", count: 5 }
+{ _id: "2026-10", count: 3 }</pre></div>
+</section>
+<section class="term" id="mongo3_densify_b">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">mongosh · $densify + $fill — empty months become explicit zeros</span></div>
+  <div class="body"><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.aggregate([
+<span class="prompt cont">...</span>   { $group: { _id: { $dateTrunc: { date: "$appliedDate", unit: "month" } }, count: { $sum: 1 } } },
+<span class="prompt cont">...</span>   { $densify: { field: "month", range: { step: 1, unit: "month", bounds: [ &lt;11 months ago&gt;, &lt;next month&gt; ] } } },
+<span class="prompt cont">...</span>   { $fill: { output: { count: { value: 0 } } } },
+<span class="prompt cont">...</span>   { $setWindowFields: { sortBy: { month: 1 }, output: { rollingAvg: { $avg: "$count", window: { documents: [-2, "current"] } } } } }
+<span class="prompt cont">...</span> ])</pre><pre class="out">{ month: "2025-11", count: 0, filled: true, rollingAvg: 0 }
+{ month: "2025-12", count: 0, filled: true, rollingAvg: 0 }
+{ month: "2026-01", count: 1, filled: false, rollingAvg: 0.3 }
+{ month: "2026-02", count: 0, filled: true, rollingAvg: 0.3 }
+{ month: "2026-03", count: 1, filled: false, rollingAvg: 0.7 }
+{ month: "2026-04", count: 0, filled: true, rollingAvg: 0.3 }
+{ month: "2026-05", count: 0, filled: true, rollingAvg: 0.3 }
+{ month: "2026-06", count: 0, filled: true, rollingAvg: 0 }
+{ month: "2026-07", count: 2, filled: false, rollingAvg: 0.7 }
+{ month: "2026-08", count: 2, filled: false, rollingAvg: 1.3 }
+{ month: "2026-09", count: 5, filled: false, rollingAvg: 3 }
+{ month: "2026-10", count: 3, filled: false, rollingAvg: 3.3 }</pre></div>
+</section>
+<section class="term" id="mongo3_explain_a">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">mongosh · explain("executionStats") — IXSCAN vs forced COLLSCAN</span></div>
+  <div class="body"><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.find({ userId: &lt;me&gt;, tags: "fintech" }).explain("executionStats")</pre><pre class="out">{
+  winningPlan: "FETCH -&gt; IXSCAN",
+  indexName: "user_tags_multikey",
+  nReturned: 3,
+  totalKeysExamined: 3,
+  totalDocsExamined: 3,
+  executionTimeMillis: 0
+}</pre><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.find({ userId: &lt;me&gt;, tags: "fintech" }).hint({ $natural: 1 }).explain("executionStats")</pre><pre class="out">{
+  winningPlan: "COLLSCAN",
+  indexName: null,
+  nReturned: 3,
+  totalKeysExamined: 0,
+  totalDocsExamined: 16,
+  executionTimeMillis: 0
+}</pre></div>
+</section>
+<section class="term" id="mongo3_explain_b">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">mongosh · explain("executionStats") — IXSCAN vs forced COLLSCAN</span></div>
+  <div class="body"><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.applications.find({ company: "google", role: "software engineer intern", status: { $in: [active] } }).collation({ locale: "en", strength: 2 }).explain("executionStats")</pre><pre class="out">{
+  winningPlan: "FETCH -&gt; IXSCAN",
+  indexName: "unique_active_company_role",
+  nReturned: 1,
+  totalKeysExamined: 1,
+  totalDocsExamined: 1,
+  executionTimeMillis: 0
+}</pre></div>
+</section>
+<section class="term" id="mongo3_stack">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">mongosh · Local stack — replica set, collections, API health</span></div>
+  <div class="body"><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.getCollectionNames()</pre><pre class="out">[ "applications", "notifications", "users" ]</pre><pre class="cmd"><span class="prompt">testset [primary] job-tracker&gt;</span> db.hello().setName</pre><pre class="out">"testset"</pre><pre class="cmd"><span class="prompt">abhijay@dbms:~$</span> curl -s http://localhost:5000/api/health</pre><pre class="out">{
+  ok: true,
+  service: "Job Application Tracker API",
+  mongodb: "connected",
+  changeStreams: true,
+  team: [ "24BCE0768", "24BCE2016" ]
+}</pre></div>
+</section>
+<section class="term" id="csv_export">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">bash · Export CSV — streamed from a MongoDB cursor</span></div>
+  <div class="body"><pre class="cmd"><span class="prompt">abhijay@dbms:~$</span> curl -H "Authorization: Bearer &lt;token&gt;" "http://localhost:5000/api/applications/export?tag=fintech" -o applications.csv &amp;&amp; cat applications.csv</pre><pre class="out">company,role,status,source,location,jobUrl,salary,appliedDate,interviewDate,followUpDate,offerDeadline,recruiterName,recruiterEmail,tags,notes
+CRED,Full Stack Intern,Applied,Company Site,Bangalore,,,2026-10-12,,2026-10-22,,,,fintech,Cover letter mentioned MongoDB aggregation project from DBMS course.
+Razorpay,SDE Intern,Applied,Referral,Bangalore,,,2026-09-17,,,,,,fintech;referral;dream,"Fintech stack: Node, Mongo, Kafka. Highlight this tracker as a portfolio piece."
+PhonePe,SDE Intern,Offer,Referral,Pune / Bangalore,,85000,2026-07-28,2026-08-22,,2026-10-29,Nikhil Rao,,fintech,Competing offer with Atlassian. Compare intern conversion rates and team.</pre></div>
+</section></body></html>

@@ -1,0 +1,138 @@
+{
+  "embedded": {
+    "title": "Embedded rounds — $push ($each + $sort), arrayFilters, statusHistory",
+    "blocks": [
+      [
+        "db.applications.updateOne({ company: \"Amazon\" }, { $push: { rounds: { $each: [ { name: \"Online assessment\", scheduledAt: <in 4 days> }, { name: \"Recruiter call\", scheduledAt: <in 1 day> } ], $sort: { scheduledAt: 1 } } } })",
+        "{\n  \"acknowledged\": true,\n  \"matchedCount\": 1,\n  \"modifiedCount\": 1\n}"
+      ],
+      [
+        "db.applications.updateOne({ company: \"Amazon\" }, { $set: { \"rounds.$[r].result\": \"Passed\", \"rounds.$[r].feedback\": \"Shortlisted for OA\" } }, { arrayFilters: [ { \"r._id\": <recruiter call id> } ] })",
+        "{\n  \"acknowledged\": true,\n  \"matchedCount\": 1,\n  \"modifiedCount\": 1\n}"
+      ],
+      [
+        "db.applications.updateOne({ company: \"Amazon\" }, { $set: { status: \"OA\" }, $push: { statusHistory: { $each: [ { status: \"OA\", changedAt: new Date() } ], $slice: -50 } } })",
+        "{\n  \"acknowledged\": true,\n  \"matchedCount\": 1,\n  \"modifiedCount\": 1\n}"
+      ],
+      [
+        "db.applications.findOne({ company: \"Amazon\" }, { company: 1, status: 1, rounds: 1, statusHistory: 1 })",
+        "{\n  \"company\": \"Amazon\",\n  \"status\": \"OA\",\n  \"rounds\": [\n    {\n      \"name\": \"Recruiter call\",\n      \"type\": \"HR\",\n      \"result\": \"Passed\",\n      \"feedback\": \"Shortlisted for OA\"\n    },\n    {\n      \"name\": \"Online assessment\",\n      \"type\": \"OA\",\n      \"result\": \"Pending\",\n      \"feedback\": \"\"\n    }\n  ],\n  \"statusHistory\": [\n    {\n      \"status\": \"Applied\",\n      \"changedAt\": \"2026-09-25T06:00:00.000Z\"\n    },\n    {\n      \"status\": \"OA\",\n      \"changedAt\": \"2026-10-21T06:04:30.883Z\"\n    }\n  ]\n}"
+      ]
+    ]
+  },
+  "window": {
+    "title": "Window functions — $dateDiff + $setWindowFields ($rank, $avg per source)",
+    "blocks": [
+      [
+        "db.applications.aggregate([\n  { $match: { status: { $in: [\"Applied\", \"OA\"] } } },\n  { $addFields: { daysWaiting: { $dateDiff: { startDate: \"$lastMove\", endDate: \"$$NOW\", unit: \"day\" } } } },\n  { $setWindowFields: { partitionBy: \"$source\", sortBy: { daysWaiting: -1 },\n      output: { rankInSource: { $rank: {} },\n                sourceAvgWait: { $avg: \"$daysWaiting\", window: { documents: [\"unbounded\", \"unbounded\"] } } } } },\n  { $sort: { daysWaiting: -1 } }\n])",
+        "[\n  {\n    \"company\": \"Zoho\",\n    \"status\": \"OA\",\n    \"source\": \"Campus\",\n    \"daysWaiting\": 47,\n    \"rankInSource\": 1,\n    \"sourceAvgWait\": 47\n  },\n  {\n    \"company\": \"Razorpay\",\n    \"status\": \"Applied\",\n    \"source\": \"Referral\",\n    \"daysWaiting\": 34,\n    \"rankInSource\": 1,\n    \"sourceAvgWait\": 34\n  },\n  {\n    \"company\": \"CRED\",\n    \"status\": \"Applied\",\n    \"source\": \"Company Site\",\n    \"daysWaiting\": 9,\n    \"rankInSource\": 1,\n    \"sourceAvgWait\": 4.5\n  },\n  {\n    \"company\": \"Microsoft\",\n    \"status\": \"OA\",\n    \"source\": \"LinkedIn\",\n    \"daysWaiting\": 7,\n    \"rankInSource\": 1,\n    \"sourceAvgWait\": 7\n  },\n  {\n    \"company\": \"Amazon\",\n    \"status\": \"OA\",\n    \"source\": \"Company Site\",\n    \"daysWaiting\": 0,\n    \"rankInSource\": 2,\n    \"sourceAvgWait\": 4.5\n  }\n]"
+      ]
+    ]
+  },
+  "unique": {
+    "title": "Collation-aware partial unique index — unique_active_company_role",
+    "blocks": [
+      [
+        "db.applications.getIndexes().find(i => i.name === \"unique_active_company_role\")",
+        "{\n  \"name\": \"unique_active_company_role\",\n  \"key\": {\n    \"userId\": 1,\n    \"company\": 1,\n    \"role\": 1\n  },\n  \"unique\": true,\n  \"collation\": {\n    \"locale\": \"en\",\n    \"strength\": 2\n  },\n  \"partialFilterExpression\": {\n    \"status\": {\n      \"$in\": [\n        \"Saved\",\n        \"Applied\",\n        \"OA\",\n        \"Interview\",\n        \"Offer\"\n      ]\n    }\n  }\n}"
+      ],
+      [
+        "db.applications.insertOne({ company: \"GOOGLE\", role: \"software engineer intern\", status: \"Applied\" })",
+        "MongoServerError: E11000 duplicate key error collection: job-tracker.applications index: unique_active_company_role collation: { locale: \"en\", caseLevel: false, caseFirst: \"off\", strength: 2, numericOrdering: false, alternate: \"non-ignorable\", maxVariable: \"punct\", normalization: false, backwards: false, version: \"57.1\" } dup key: { userId: ObjectId('6ad855ee6315c7b4e70f2441'), company: \"CollationKey(0x354545353f31010a)\", role: \"CollationKey(0x4d45334f55294b3104314335394331314b0439434f314b43011c)\" }"
+      ],
+      [
+        "db.applications.insertOne({ company: \"flipkart\", role: \"sde intern\", status: \"Applied\" })   // earlier Flipkart row is Rejected",
+        "{\n  \"acknowledged\": true,\n  \"insertedId\": \"ObjectId('6ad855ee6315c7b4e70f2466')\"\n}"
+      ],
+      [
+        "db.applications.find({ company: \"google\", role: \"software engineer intern\" }).collation({ locale: \"en\", strength: 2 })",
+        "[\n  {\n    \"company\": \"Google\",\n    \"role\": \"Software Engineer Intern\",\n    \"status\": \"Interview\"\n  }\n]"
+      ]
+    ]
+  },
+  "flexible": {
+    "title": "Flexible schema — multikey index on tags, compound wildcard index on customFields",
+    "blocks": [
+      [
+        "db.applications.getIndexes()   // Review 3 flexible-schema indexes",
+        "[\n  {\n    \"name\": \"user_tags_multikey\",\n    \"key\": {\n      \"userId\": 1,\n      \"tags\": 1\n    }\n  },\n  {\n    \"name\": \"user_custom_fields_wildcard\",\n    \"key\": {\n      \"userId\": 1,\n      \"customFields.$**\": 1\n    }\n  }\n]"
+      ],
+      [
+        "db.applications.find({ tags: \"fintech\" }, { company: 1, tags: 1 })",
+        "[\n  {\n    \"company\": \"CRED\",\n    \"tags\": [\n      \"fintech\"\n    ]\n  },\n  {\n    \"company\": \"Razorpay\",\n    \"tags\": [\n      \"fintech\",\n      \"referral\"\n    ]\n  },\n  {\n    \"company\": \"PhonePe\",\n    \"tags\": [\n      \"fintech\"\n    ]\n  }\n]"
+      ],
+      [
+        "db.applications.find({ \"customFields.CGPA cutoff\": { $gte: 8 } }, { company: 1, customFields: 1 })",
+        "[\n  {\n    \"company\": \"Google\",\n    \"customFields\": {\n      \"CGPA cutoff\": 8,\n      \"Bond months\": 0,\n      \"Work mode\": \"Hybrid\"\n    }\n  },\n  {\n    \"company\": \"Goldman Sachs\",\n    \"customFields\": {\n      \"CGPA cutoff\": 8.5\n    }\n  }\n]"
+      ],
+      [
+        ".explain(\"queryPlanner\") — index chosen for each query",
+        "{\n  \"tagsQuery\": {\n    \"stage\": \"IXSCAN\",\n    \"indexName\": \"user_tags_multikey\",\n    \"isMultiKey\": true\n  },\n  \"customFieldQuery\": {\n    \"stage\": \"IXSCAN\",\n    \"indexName\": \"user_custom_fields_wildcard\",\n    \"isMultiKey\": false\n  }\n}"
+      ]
+    ]
+  },
+  "changestream": {
+    "title": "Change Streams — replica set, pre-images, live events",
+    "blocks": [
+      [
+        "db.hello()   // change streams require a replica set",
+        "{\n  \"setName\": \"testset\",\n  \"isWritablePrimary\": true,\n  \"hosts\": [\n    \"127.0.0.1:38947\"\n  ]\n}"
+      ],
+      [
+        "db.runCommand({ collMod: \"applications\", changeStreamPreAndPostImages: { enabled: true } })",
+        "{\n  \"options\": {\n    \"changeStreamPreAndPostImages\": {\n      \"enabled\": true\n    }\n  }\n}"
+      ],
+      [
+        "const cs = db.applications.watch([ { $match: { operationType: { $in: [\"insert\", \"update\", \"delete\"] } } } ],\n  { fullDocument: \"updateLookup\", fullDocumentBeforeChange: \"whenAvailable\" })\n// then: CRED status -> OA, insert Notion, delete Notion",
+        "[\n  {\n    \"operationType\": \"update\",\n    \"documentKey\": {\n      \"_id\": \"ObjectId('6ad855ee6315c7b4e70f2453')\"\n    },\n    \"updateDescription\": {\n      \"updatedFields\": [\n        \"status\",\n        \"updatedAt\"\n      ]\n    },\n    \"fullDocument\": {\n      \"company\": \"CRED\",\n      \"status\": \"OA\"\n    },\n    \"fullDocumentBeforeChange\": {\n      \"company\": \"CRED\",\n      \"status\": \"Applied\"\n    }\n  },\n  {\n    \"operationType\": \"insert\",\n    \"documentKey\": {\n      \"_id\": \"ObjectId('6ad855ef6315c7b4e70f2467')\"\n    },\n    \"fullDocument\": {\n      \"company\": \"Notion\",\n      \"status\": \"Applied\"\n    }\n  },\n  {\n    \"operationType\": \"delete\",\n    \"documentKey\": {\n      \"_id\": \"ObjectId('6ad855ef6315c7b4e70f2467')\"\n    },\n    \"fullDocumentBeforeChange\": {\n      \"company\": \"Notion\",\n      \"status\": \"Applied\"\n    }\n  }\n]"
+      ]
+    ]
+  },
+  "densify": {
+    "title": "$densify + $fill — empty months become explicit zeros",
+    "blocks": [
+      [
+        "db.applications.aggregate([ { $group: { _id: <month>, count: { $sum: 1 } } } ])   // $group alone skips empty months",
+        "{ _id: \"2026-01\", count: 1 }\n{ _id: \"2026-03\", count: 1 }\n{ _id: \"2026-07\", count: 2 }\n{ _id: \"2026-08\", count: 2 }\n{ _id: \"2026-09\", count: 5 }\n{ _id: \"2026-10\", count: 3 }"
+      ],
+      [
+        "db.applications.aggregate([\n  { $group: { _id: { $dateTrunc: { date: \"$appliedDate\", unit: \"month\" } }, count: { $sum: 1 } } },\n  { $densify: { field: \"month\", range: { step: 1, unit: \"month\", bounds: [ <11 months ago>, <next month> ] } } },\n  { $fill: { output: { count: { value: 0 } } } },\n  { $setWindowFields: { sortBy: { month: 1 }, output: { rollingAvg: { $avg: \"$count\", window: { documents: [-2, \"current\"] } } } } }\n])",
+        "{ month: \"2025-11\", count: 0, filled: true, rollingAvg: 0 }\n{ month: \"2025-12\", count: 0, filled: true, rollingAvg: 0 }\n{ month: \"2026-01\", count: 1, filled: false, rollingAvg: 0.3 }\n{ month: \"2026-02\", count: 0, filled: true, rollingAvg: 0.3 }\n{ month: \"2026-03\", count: 1, filled: false, rollingAvg: 0.7 }\n{ month: \"2026-04\", count: 0, filled: true, rollingAvg: 0.3 }\n{ month: \"2026-05\", count: 0, filled: true, rollingAvg: 0.3 }\n{ month: \"2026-06\", count: 0, filled: true, rollingAvg: 0 }\n{ month: \"2026-07\", count: 2, filled: false, rollingAvg: 0.7 }\n{ month: \"2026-08\", count: 2, filled: false, rollingAvg: 1.3 }\n{ month: \"2026-09\", count: 5, filled: false, rollingAvg: 3 }\n{ month: \"2026-10\", count: 3, filled: false, rollingAvg: 3.3 }"
+      ]
+    ]
+  },
+  "explain": {
+    "title": "explain(\"executionStats\") — IXSCAN vs forced COLLSCAN",
+    "blocks": [
+      [
+        "db.applications.find({ userId: <me>, tags: \"fintech\" }).explain(\"executionStats\")",
+        "{\n  \"winningPlan\": \"FETCH -> IXSCAN\",\n  \"indexName\": \"user_tags_multikey\",\n  \"nReturned\": 3,\n  \"totalKeysExamined\": 3,\n  \"totalDocsExamined\": 3,\n  \"executionTimeMillis\": 0\n}"
+      ],
+      [
+        "db.applications.find({ userId: <me>, tags: \"fintech\" }).hint({ $natural: 1 }).explain(\"executionStats\")",
+        "{\n  \"winningPlan\": \"COLLSCAN\",\n  \"indexName\": null,\n  \"nReturned\": 3,\n  \"totalKeysExamined\": 0,\n  \"totalDocsExamined\": 16,\n  \"executionTimeMillis\": 0\n}"
+      ],
+      [
+        "db.applications.find({ company: \"google\", role: \"software engineer intern\", status: { $in: [active] } }).collation({ locale: \"en\", strength: 2 }).explain(\"executionStats\")",
+        "{\n  \"winningPlan\": \"FETCH -> IXSCAN\",\n  \"indexName\": \"unique_active_company_role\",\n  \"nReturned\": 1,\n  \"totalKeysExamined\": 1,\n  \"totalDocsExamined\": 1,\n  \"executionTimeMillis\": 0\n}"
+      ]
+    ]
+  },
+  "stack": {
+    "title": "Local stack — replica set, collections, API health",
+    "blocks": [
+      [
+        "db.getCollectionNames()",
+        "[\n  \"applications\",\n  \"notifications\",\n  \"users\"\n]"
+      ],
+      [
+        "db.hello().setName",
+        "\"testset\""
+      ],
+      [
+        "GET http://localhost:5000/api/health",
+        "{\n  \"ok\": true,\n  \"service\": \"Job Application Tracker API\",\n  \"mongodb\": \"connected\",\n  \"changeStreams\": true,\n  \"team\": [\n    \"24BCE0768\",\n    \"24BCE2016\"\n  ]\n}"
+      ]
+    ]
+  }
+}

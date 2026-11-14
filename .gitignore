@@ -1,0 +1,19 @@
+node_modules/
+dist/
+.env
+*.log
+.DS_Store
+uploads/
+client/dist/
+server/node_modules/
+client/node_modules/
+.vercel/
+# Module 7 assignment files (not part of the app)
+module7/
+Module7_*.pptx
+build_ppt.py
+add_*slides*.py
+ppt_content.md
+ppt_recreation_prompt.md
+test_queries.py
+__pycache__/

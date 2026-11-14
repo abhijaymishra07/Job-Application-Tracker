@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Job Application Tracker Using MongoDB — Technical Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="report.css" />
+</head>
+<body>
+<div class="page cover">
+  <div class="logo-ph">VIT</div>
+  <div class="kicker">School of Computer Science and Engineering</div>
+  <h1>Job Application Tracker Using MongoDB</h1>
+  <div class="sub">Technical Documentation</div>
+  <div class="badges">
+    <span class="badge">MongoDB</span>
+    <span class="badge">Express</span>
+    <span class="badge">React</span>
+    <span class="badge">Node.js</span>
+  </div>
+  <div class="mock">
+    <div class="m"><span>Applications</span><b>14</b></div>
+    <div class="m"><span>Conversion</span><b>41.7%</b></div>
+    <div class="m"><span>Offers</span><b>2</b></div>
+    <div class="m"><span>Next 7 days</span><b>5</b></div>
+  </div>
+  <div class="meta-grid">
+    <div class="meta-card">
+      <label>Prepared by</label>
+      <div><b>Abhijay Mishra</b> — 24BCE2016</div>
+      <div><b>Naman Gupta</b> — 24BCE0768</div>
+    </div>
+    <div class="meta-card">
+      <label>Institution</label>
+      <div>Department of Computer Science</div>
+      <div>Vellore Institute of Technology</div>
+      <div>Academic Year 2026–2027</div>
+    </div>
+    <div class="meta-card">
+      <label>Faculty Guide</label>
+      <div>Name: ____________________________</div>
+      <div>Designation: _____________________</div>
+    </div>
+    <div class="meta-card">
+      <label>Document</label>
+      <div>MERN Stack Project Report</div>
+      <div>Hardcopy submission · A4</div>
+      <div>September 2026</div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="cert">
+    <div class="logo-ph" style="margin: 0 auto 12px; color: #0F172A; border-color: #14B8A6;">VIT</div>
+    <div class="kicker" style="color:#14B8A6">Vellore Institute of Technology</div>
+    <h1>Certificate of Completion</h1>
+    <hr class="rule" style="margin: 12px auto;" />
+    <p class="muted">This is to certify that the project report entitled</p>
+    <h2 style="margin: 12px 0;">Job Application Tracker Using MongoDB</h2>
+    <p>submitted by</p>
+    <p><b>Abhijay Mishra (24BCE2016)</b> and <b>Naman Gupta (24BCE0768)</b></p>
+    <p>of the B.Tech. programme in Computer Science and Engineering is a bona fide record of work carried out under the supervision of the undersigned. The work has been completed in accordance with the requirements of the School of Computer Science and Engineering, Vellore Institute of Technology.</p>
+    <p style="margin-top:18px">Place: Vellore &nbsp;&nbsp; Date: _______________</p>
+    <div class="sigs">
+      <div><div class="sig-line">Faculty Guide<br/>Name &amp; Signature</div></div>
+      <div><div class="sig-line">Department Seal<br/>(placeholder)</div></div>
+      <div><div class="sig-line">Head of Department<br/>Name &amp; Signature</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="kicker">Front matter</div>
+  <h1>Acknowledgement</h1>
+  <hr class="rule" />
+  <p>We take this opportunity to express our sincere gratitude to the School of Computer Science and Engineering, Vellore Institute of Technology, for providing the academic environment and laboratory facilities that made this project possible. We are deeply thankful to our faculty guide for patient mentorship, rigorous reviews, and for encouraging us to treat MongoDB as a first-class design concern rather than a mere persistence layer.</p>
+  <p>We thank the Department of Computer Science for the DBMS course framework that shaped the fourteen functionalities documented herein—schema design, indexing, aggregation, text search, and GridFS. The emphasis on demonstrating each capability in a working full-stack system guided every implementation decision.</p>
+  <p>We also acknowledge VIT’s computing infrastructure and the collaborative culture of our peer group. Working as a two-member team required shared ownership of the React interface and the Express–Mongoose API; that partnership improved both code quality and this report. Any remaining shortcomings are our own.</p>
+  <p style="margin-top:28px"><b>Abhijay Mishra</b> &nbsp;·&nbsp; <b>Naman Gupta</b><br/><span class="muted">B.Tech. Computer Science and Engineering · VIT Vellore</span></p>
+</div>
+
+<div class="page">
+  <div class="kicker">Overview</div>
+  <h1>Executive Summary</h1>
+  <hr class="rule" />
+  <div class="cards four">
+    <div class="card">
+      <div class="icon">01</div>
+      <h3>Problem Statement</h3>
+      <p class="small">Students often manage job applications manually through spreadsheets and scattered notes, making tracking interviews, offers, and deadlines inefficient.</p>
+    </div>
+    <div class="card">
+      <div class="icon">02</div>
+      <h3>Proposed Solution</h3>
+      <p class="small">A MERN-based Job Application Tracker powered by MongoDB that centralizes application management through a modern web interface.</p>
+    </div>
+    <div class="card">
+      <div class="icon">03</div>
+      <h3>Outcome</h3>
+      <p class="small">A scalable and user-friendly application that demonstrates practical implementation of MongoDB NoSQL concepts alongside full-stack development.</p>
+    </div>
+    <div class="card">
+      <div class="icon">04</div>
+      <h3>Scope of this report</h3>
+      <p class="small">Fourteen core functionalities—seven user-facing React capabilities and seven MongoDB/NoSQL capabilities—are specified with source excerpts and screenshots from the running system.</p>
+    </div>
+  </div>
+  <h3 style="margin-top:18px">Key capabilities</h3>
+  <div class="cards" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="card"><div class="icon">D</div><b>Dashboard</b><p class="small muted">Pipeline at a glance</p></div>
+    <div class="card"><div class="icon">A</div><b>Analytics</b><p class="small muted">Conversion &amp; volume</p></div>
+    <div class="card"><div class="icon">P</div><b>Pipeline tracking</b><p class="small muted">Status stages</p></div>
+    <div class="card"><div class="icon">I</div><b>Interview alerts</b><p class="small muted">3 / 7 / 14 day windows</p></div>
+    <div class="card"><div class="icon">S</div><b>Search</b><p class="small muted">Weighted $text index</p></div>
+    <div class="card"><div class="icon">G</div><b>GridFS storage</b><p class="small muted">Resumes in MongoDB</p></div>
+    <div class="card"><div class="icon">Σ</div><b>Aggregation</b><p class="small muted">Metrics in the database</p></div>
+    <div class="card"><div class="icon">C</div><b>CRUD + auth</b><p class="small muted">Per-user ownership</p></div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="kicker">Front matter</div>
+  <h1>Table of Contents</h1>
+  <hr class="rule" />
+  <div class="toc">
+    <ol>
+      <li>Certificate</li>
+      <li>Acknowledgement</li>
+      <li>Executive Summary</li>
+      <li>Table of Contents</li>
+      <li>Technology Stack</li>
+      <li>System Architecture</li>
+      <li>Database Design</li>
+      <li>User-Defined Functionalities
+        <ol>
+          <li>Centralized Dashboard</li>
+          <li>Low-Friction Data Entry Form</li>
+          <li>Pipeline Visibility &amp; Status Updates</li>
+          <li>Actionable Analytics UI</li>
+          <li>Search &amp; Filter Board</li>
+          <li>Upcoming Interview Alerts</li>
+          <li>File Upload Interface</li>
+        </ol>
+      </li>
+      <li>NoSQL / MongoDB Functionalities
+        <ol>
+          <li>Data Modeling &amp; Referencing</li>
+          <li>Schema Validation</li>
+          <li>CRUD Operations</li>
+          <li>Single &amp; Compound Indexing</li>
+          <li>Aggregation Pipeline</li>
+          <li>Text Search</li>
+          <li>GridFS File Storage</li>
+        </ol>
+      </li>
+      <li>Project Highlights</li>
+      <li>Real-World Applications</li>
+      <li>Learning Outcomes</li>
+      <li>Future Enhancements</li>
+      <li>Conclusion</li>
+      <li>Appendix A — MongoDB Verification</li>
+    </ol>
+  </div>
+  <p class="muted small">Section numbering follows the fourteen demonstrated functionalities. Figure numbers are of the form Figure X.Y, where X is the functionality number.</p>
+</div>
+
+<div class="page">
+  <div class="kicker">Design</div>
+  <h1>Technology Stack</h1>
+  <hr class="rule" />
+  <p>The tracker is implemented entirely on the MERN stack so that one language—JavaScript—covers client, server, and data-access logic. MongoDB is selected for semi-structured application records that evolve (notes, recruiter fields, optional files) without rigid join-heavy schemas.</p>
+  <div class="cards two" style="margin-top:14px">
+    <div class="card"><div class="icon">R</div><h3>React</h3><p class="small">Interactive frontend: dashboard, forms, pipeline board, analytics charts, and authenticated routing via a single-page application.</p></div>
+    <div class="card"><div class="icon">N</div><h3>Node.js</h3><p class="small">JavaScript runtime for the API process, tying Express, Mongoose, JSON Web Tokens, and GridFS streams together.</p></div>
+    <div class="card"><div class="icon">E</div><h3>Express</h3><p class="small">REST framework for routing, CORS, JSON parsing, authentication middleware, and multipart file handlers.</p></div>
+    <div class="card"><div class="icon">M</div><h3>MongoDB</h3><p class="small">Document database storing users and applications; aggregation, text indexes, and GridFS all run natively in the engine.</p></div>
+    <div class="card"><div class="icon">Ω</div><h3>Mongoose</h3><p class="small">ODM providing schemas, validation, population-ready ObjectId references, and index declarations that map 1:1 to MongoDB.</p></div>
+    <div class="card"><div class="icon">↗</div><h3>Recharts</h3><p class="small">Data visualization on the Analytics page. Charts consume API aggregates; they do not compute business metrics in the browser.</p></div>
+    <div class="card"><div class="icon">G</div><h3>GridFS</h3><p class="small">Binary storage for resumes and cover letters inside the same MongoDB instance, linked by file ObjectIds on each application.</p></div>
+    <div class="card"><div class="icon">JWT</div><h3>Authentication</h3><p class="small">Bearer tokens identify the user; every query is additionally scoped with <code>userId</code> so records cannot leak across accounts.</p></div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="kicker">Design</div>
+  <h1>System Architecture</h1>
+  <hr class="rule" />
+  <p>A request originates in the browser, is authorized at the Express layer, is translated by Mongoose into MongoDB operations, and—when files are involved—streams through a GridFS bucket named <b>documents</b>.</p>
+  <div class="flow" style="margin-top:18px">
+    <div class="box">User<small>Authenticated candidate workspace</small></div>
+    <div class="arrow">↓</div>
+    <div class="box">React Frontend<small>Dashboard · Forms · Analytics · File slots</small></div>
+    <div class="arrow">↓</div>
+    <div class="box">Express API<small>REST /api/* · JWT middleware · validation</small></div>
+    <div class="arrow">↓</div>
+    <div class="box">Node.js Backend<small>Controllers · GridFS helpers · ownership filters</small></div>
+    <div class="arrow">↓</div>
+    <div class="box">Mongoose ODM<small>Schemas · indexes · runValidators</small></div>
+    <div class="arrow">↓</div>
+    <div class="box">MongoDB Database<small>users · applications collections</small></div>
+    <div class="arrow">↓</div>
+    <div class="box">GridFS File Storage<small>documents.files · documents.chunks</small></div>
+  </div>
+  <div class="callout sec" style="margin-top:18px">
+    <strong>Security note</strong>
+    Ownership is enforced twice: a valid JWT identifies the principal, and every find/update/delete includes <b>userId</b> from that principal. File download streams are likewise bound to the parent application record.
+  </div>
+</div>
+
+<div class="page">
+  <div class="kicker">Design</div>
+  <h1>Database Design</h1>
+  <hr class="rule" />
+  <div class="flow">
+    <div class="box">Users collection<small>_id · name · email · password hash · university</small></div>
+    <div class="arrow">↓ &nbsp; ObjectId reference (one-to-many)</div>
+    <div class="box">Applications collection<small>userId → Users._id · company · role · status · dates · notes</small></div>
+    <div class="arrow">↓ &nbsp; resumeFileId / coverLetterFileId</div>
+    <div class="box">GridFS documents<small>documents.files + documents.chunks · metadata.applicationId</small></div>
+  </div>
+  <p class="small" style="margin-top:14px"><b>Indexed fields:</b> <code>userId</code>; compound <code>{ userId, status }</code>, <code>{ userId, appliedDate: -1 }</code>, <code>{ userId, interviewDate }</code>; text index on company, role, notes, recruiterName.</p>
+  <div class="callout">
+    <strong>Why referencing?</strong>
+    MongoDB referencing is used instead of embedding because a user may own hundreds of applications, each with independent status updates and optional files. Storing a <b>userId</b> ObjectId on every application keeps writes local to one document, enables per-user indexes, and prevents duplicating credentials or profile fields inside every job record. Embedding would bloat the user document and force rewrites of the entire array on each status change.
+  </div>
+  <div class="callout biz">
+    <strong>MongoDB best practice</strong>
+    ObjectId referencing prevents unnecessary duplication while maintaining scalability as the application history grows.
+  </div>
+</div>
+
+<div class="page">
+  <div class="feature-head"><div class="num">1</div><div>
+    <div class="kicker">User-defined · Frontend</div>
+    <h1>Centralized Dashboard</h1>
+    <p class="one-line">Purpose — Provides a unified overview of job applications, interviews, offers, and conversion metrics.</p>
+  </div></div>
+  <p>The dashboard summarizes the entire application pipeline in one screen — total applications, interview conversion rate, offer count, and interviews due in the next 7 days. It loads analytics, pipeline, and upcoming-interview data in parallel on mount, so the user gets a single at-a-glance view instead of checking spreadsheets or tabs.</p>
+  <div class="codewrap">
+    <div class="filename">client/src/pages/Dashboard.jsx</div>
+<pre>useEffect(() => {
+Promise.all([
+api.get('/analytics'),
+api.get('/applications/pipeline'),
+api.get('/applications/upcoming?days=7'),
+]).then(([a, p, u]) => { setAnalytics(a.data); setPipeline(p.data); });
+}, []);</pre>
+  </div>
+  <div class="shot"><img src="assets/shot_08.png" alt="Dashboard" /></div>
+  <p class="caption">Figure 1.1 – Dashboard displaying application statistics and pipeline overview.</p>
+  <div class="callout biz"><strong>Business value</strong>This feature reduces navigation time by presenting important recruitment metrics on a single screen. Centralized tracking improves productivity by eliminating scattered job records.</div>
+</div>
+
+<div class="page">
+  <div class="feature-head"><div class="num">2</div><div>
+    <div class="kicker">User-defined · Frontend</div>
+    <h1>Low-Friction Data Entry Form</h1>
+    <p class="one-line">Purpose — Capture a new application in seconds with only company and role required.</p>
+  </div></div>
+  <p>A single React form lets the user add a new application in seconds, with only Company and Role marked required. On submit it posts the payload to the API and immediately navigates to the newly created application, keeping data entry fast and low-friction.</p>
+  <div class="codewrap">
+    <div class="filename">client/src/pages/ApplicationForm.jsx</div>
+<pre>async function onSubmit(e) {
+e.preventDefault();
+const payload = { ...form, salary: form.salary === "" ? null : Number(form.salary) };
+const { data } = await api.post('/applications', payload);
+navigate(`/applications/${data.application._id}`);
+}</pre>
+  </div>
+  <div class="shot"><img src="assets/shot_07.png" alt="New application form" /></div>
+  <p class="caption">Figure 2.1 – New application form used for low-friction data entry.</p>
+  <div class="callout biz"><strong>Business value</strong>If adding a record takes more than a moment, users abandon the tracker. A short form with sensible defaults keeps the pipeline current.</div>
+</div>
+
+<div class="page">
+  <div class="feature-head"><div class="num">3</div><div>
+    <div class="kicker">User-defined · Frontend</div>
+    <h1>Pipeline Visibility &amp; Status Updates</h1>
+    <p class="one-line">Purpose — Move an application across Saved, Applied, OA, Interview, Offer, and Rejected in one control.</p>
+  </div></div>
+  <p>A dropdown on the application detail page lets the user move an application across pipeline stages (Applied, OA, Interview, Offer, Rejected) with a single selection. Changing the value fires a PATCH request and updates the UI with the server's response, keeping the pipeline state in sync. The implemented status enum also includes Saved for roles that are bookmarked before apply.</p>
+  <div class="codewrap">
+    <div class="filename">client/src/pages/ApplicationDetail.jsx</div>
+<pre>async function changeStatus(status) {
+const { data } = await api.patch(`/applications/${id}`, { status });
+setApp(data.application);
+}
+// &lt;select value={app.status} onChange={(e) =&gt; changeStatus(e.target.value)}&gt;</pre>
+  </div>
+  <div class="shot"><img src="assets/shot_12.png" alt="Status dropdown" /></div>
+  <p class="caption">Figure 3.1 – Status dropdown on the applications board, changing pipeline stage.</p>
+  <div class="shot"><img src="assets/shot_16.png" alt="Board with open status menu" /></div>
+  <p class="caption">Figure 3.2 – Pipeline board with inline status updates across many records.</p>
+  <div class="callout biz"><strong>Business value</strong>Pipeline state is the product’s source of truth. Inline updates mean the dashboard, alerts, and analytics stay consistent without a separate workflow.</div>
+</div>
+
+<div class="page">
+  <div class="feature-head"><div class="num">4</div><div>
+    <div class="kicker">User-defined · Frontend</div>
+    <h1>Actionable Analytics UI</h1>
+    <p class="one-line">Purpose — Visualize interview conversion, offer conversion, and monthly volume without computing in the browser.</p>
+  </div></div>
+  <p>The Analytics page renders MongoDB-computed metrics using Recharts: a bar chart of status distribution and a line chart of monthly application volume. The UI performs no calculation itself — it only visualizes the aggregation results returned by the API, keeping charts and business logic decoupled.</p>
+  <div class="codewrap">
+    <div class="filename">client/src/pages/Analytics.jsx</div>
+<pre>&lt;BarChart data={statusDistribution}&gt;
+&lt;XAxis dataKey="status" /&gt;&lt;YAxis allowDecimals={false} /&gt;
+&lt;Bar dataKey="count" radius={[8, 8, 0, 0]}&gt;
+{statusDistribution.map((e) =&gt; &lt;Cell key={e.status} fill={COLORS[e.status]} /&gt;)}
+&lt;/Bar&gt;
+&lt;/BarChart&gt;</pre>
+  </div>
+  <div class="shot"><img src="assets/shot_15.png" alt="Analytics page" /></div>
+  <p class="caption">Figure 4.1 – Analytics page with conversion cards, status-distribution bar chart, and monthly-volume line chart.</p>
+  <div class="callout"><strong>MongoDB best practice</strong>Chart series are produced by <code>$group</code> and <code>$sum</code> on the server. React remains a rendering layer, which keeps metric definitions consistent for any future client (mobile or export).</div>
+</div>
+
+<div class="page">
+  <div class="feature-head"><div class="num">5</div><div>
+    <div class="kicker">User-defined · Frontend</div>
+    <h1>Search &amp; Filter Board</h1>
+    <p class="one-line">Purpose — Instantly locate applications by keyword and pipeline stage, with pagination.</p>
+  </div></div>
+  <p>A search bar and status dropdown let the user narrow the application list by company, role, recruiter, or notes text, or by pipeline stage. Submitting the search calls the API with both the query string and the selected status, which are combined server-side into a single filtered, paginated request.</p>
+  <div class="codewrap">
+    <div class="filename">client/src/pages/Applications.jsx</div>
+<pre>async function search(e) {
+e.preventDefault();
+setPage(1);
+await load(1, q, status);
+}
+// api.get('/applications', { params: { page, limit: 8, q, status } })</pre>
+  </div>
+  <div class="shot"><img src="assets/shot_05.png" alt="Search Amazon and status filter" /></div>
+  <p class="caption">Figure 5.1 – Search and filter board with a company keyword and status menu open.</p>
+  <div class="callout perf"><strong>Performance insight</strong>Status filters ride the compound index <code>{ userId, status }</code>. Pagination uses skip/limit so a long history never loads in one payload.</div>
+</div>
+
+<div class="page">
+  <div class="feature-head"><div class="num">6</div><div>
+    <div class="kicker">User-defined · Frontend</div>
+    <h1>Upcoming Interview Alerts</h1>
+    <p class="one-line">Purpose — Surface OA and interview dates inside a 3-, 7-, or 14-day window.</p>
+  </div></div>
+  <p>A dedicated view highlights applications with an OA or Interview scheduled in the next N days (3, 7, or 14, selectable via toggle buttons). It re-queries the API whenever the window changes, surfacing only what the user needs to act on soon instead of the full application list.</p>
+  <div class="codewrap">
+    <div class="filename">client/src/pages/Upcoming.jsx</div>
+<pre>const [days, setDays] = useState(7);
+useEffect(() => {
+api.get(`/applications/upcoming?days=${days}`).then((res) => setPayload(res.data));
+}, [days]);
+// {[3, 7, 14].map((n) => &lt;button onClick={() =&gt; setDays(n)}&gt;Next {n} days&lt;/button&gt;)}</pre>
+  </div>
+  <div class="shot"><img src="assets/shot_13.png" alt="Upcoming interviews" /></div>
+  <p class="caption">Figure 6.1 – Upcoming view with the 7-day toggle selected and dated interviews listed.</p>
+  <div class="callout biz"><strong>Business value</strong>Deadlines no longer live only in an inbox. The date-range query on <code>interviewDate</code> is the operational difference between a tracker and a spreadsheet.</div>
+</div>
+
+<div class="page">
+  <div class="feature-head"><div class="num">7</div><div>
+    <div class="kicker">User-defined · Frontend</div>
+    <h1>File Upload Interface</h1>
+    <p class="one-line">Purpose — Attach a tailored resume and cover letter to a specific application.</p>
+  </div></div>
+  <p>Each application detail page includes a file slot for a resume and a cover letter. Selecting a file wraps it in FormData and uploads it via a multipart POST request; the user can later download it back from GridFS or remove it, all without leaving the page.</p>
+  <div class="codewrap">
+    <div class="filename">client/src/pages/ApplicationDetail.jsx</div>
+<pre>async function upload(e) {
+const file = e.target.files?.[0];
+const form = new FormData();
+form.append('file', file);
+await api.post(`/applications/${app._id}/files/${kind}`, form, {
+headers: { 'Content-Type': 'multipart/form-data' } });
+}</pre>
+  </div>
+  <div class="shot"><img src="assets/shot_14.png" alt="Documents upload" /></div>
+  <p class="caption">Figure 7.1 – Application detail page with file upload interface, Download, and Remove actions.</p>
+  <div class="shot"><img src="assets/shot_10.png" alt="CRUD actions and documents" /></div>
+  <p class="caption">Figure 7.2 – Detail page showing Edit/Delete (CRUD) together with stored document names.</p>
+  <div class="callout"><strong>MongoDB best practice</strong>Files are not left on the Node filesystem. GridFS keeps binaries next to the application document that owns them.</div>
+</div>
+
+<div class="page">
+  <div class="feature-head"><div class="num">8</div><div>
+    <div class="kicker">NoSQL · MongoDB</div>
+    <h1>Data Modeling &amp; Referencing</h1>
+    <p class="one-line">Purpose — Separate Users and Applications collections linked by ObjectId.</p>
+  </div></div>
+  <p>Each Application document stores a userId field typed as a Mongoose ObjectId that references the Users collection. This models a one-to-many relationship (one user, many applications) using MongoDB's referencing pattern instead of embedding, and the field is indexed since every query is scoped to the owning user.</p>
+  <div class="codewrap">
+    <div class="filename">server/models/Application.js</div>
+<pre>userId: {
+type: mongoose.Schema.Types.ObjectId,
+ref: 'User',
+required: [true, 'Every application must belong to a user'],
+index: true,
+},</pre>
+  </div>
+  <div class="shot"><img src="assets/shot_01.png" alt="userId schema" /></div>
+  <p class="caption">Figure 8.1 – Application.js model with the userId field referencing User.</p>
+  <div class="callout"><strong>MongoDB best practice</strong>ObjectId referencing prevents unnecessary duplication while maintaining scalability.</div>
+</div>
+
+<div class="page">
+  <div class="feature-head"><div class="num">9</div><div>
+    <div class="kicker">NoSQL · MongoDB</div>
+    <h1>Schema Validation</h1>
+    <p class="one-line">Purpose — Reject incomplete or malformed documents before they are written.</p>
+  </div></div>
+  <p>Mongoose enforces data integrity at the schema level before anything reaches the database: required fields, string length limits, an enum restricting status to valid pipeline stages, and a custom regex validator on the job URL. Invalid writes are rejected with a descriptive ValidationError before they touch MongoDB.</p>
+  <div class="codewrap">
+    <div class="filename">server/models/Application.js</div>
+<pre>status: {
+type: String,
+enum: { values: STATUSES, message: 'Status must be one of: ...' },
+default: 'Applied',
+},
+jobUrl: { type: String, validate: { validator: (v) => !v || /^https?:\/\/.+/i.test(v) } },</pre>
+  </div>
+  <div class="shot"><img src="assets/shot_09.png" alt="Validation error" /></div>
+  <p class="caption">Figure 9.1 – Application form with an invalid job URL triggering the validation error banner.</p>
+  <div class="callout sec"><strong>Security / integrity note</strong>HTML required attributes are not the last line of defence. <code>runValidators: true</code> on updates re-applies the same rules for PATCH as for create.</div>
+</div>
+
+<div class="page">
+  <div class="feature-head"><div class="num">10</div><div>
+    <div class="kicker">NoSQL · MongoDB</div>
+    <h1>CRUD Operations</h1>
+    <p class="one-line">Purpose — Create, read, update, and delete application documents for the authenticated owner only.</p>
+  </div></div>
+  <p>Express routes backed by controller functions handle the full lifecycle of an application document: create, read (single and paginated list), update, and delete. Each operation is scoped to the authenticated user via an ownerFilter, and update/delete return 404 for records the user does not own.</p>
+  <div class="codewrap">
+    <div class="filename">server/controllers/applicationController.js</div>
+<pre>async function updateApplication(req, res) {
+const application = await Application.findOneAndUpdate(
+{ _id: req.params.id, ...ownerFilter(req.user._id) },
+req.body,
+{ new: true, runValidators: true }
+);
+}</pre>
+  </div>
+  <div class="shot"><img src="assets/shot_11.png" alt="Edit application" /></div>
+  <p class="caption">Figure 10.1 – Edit form representing Update in the CRUD cycle (Create is the new-application form; Delete is on the detail header).</p>
+  <div class="callout sec"><strong>Security note</strong>Owner filtering is applied on the query selector, not only in the UI. A forged application id belonging to another user cannot be patched or deleted.</div>
+</div>
+
+<div class="page">
+  <div class="feature-head"><div class="num">11</div><div>
+    <div class="kicker">NoSQL · MongoDB</div>
+    <h1>Single &amp; Compound Indexing</h1>
+    <p class="one-line">Purpose — Keep status filters, date sorts, and upcoming-interview lookups fast as volume grows.</p>
+  </div></div>
+  <p>Compound indexes on { userId, status } and { userId, appliedDate } speed up the two most common query patterns — filtering the pipeline by stage and sorting the list by application date — without scanning every document a user owns. A separate index supports fast lookups of upcoming interviews by date.</p>
+  <div class="codewrap">
+    <div class="filename">server/models/Application.js</div>
+<pre>applicationSchema.index({ userId: 1, status: 1 });
+applicationSchema.index({ userId: 1, appliedDate: -1 });
+applicationSchema.index({ userId: 1, interviewDate: 1 });</pre>
+  </div>
+  <div class="shot"><img src="assets/shot_02.png" alt="Index declarations" /></div>
+  <p class="caption">Figure 11.1 – Compound and text index declarations in Application.js (verified against the live collection).</p>
+  <div class="callout perf"><strong>Performance insight</strong>Compound indexing significantly reduces query time for frequently accessed application filters keyed by the owning user.</div>
+</div>
+
+<div class="page">
+  <div class="feature-head"><div class="num">12</div><div>
+    <div class="kicker">NoSQL · MongoDB</div>
+    <h1>Aggregation Pipeline</h1>
+    <p class="one-line">Purpose — Compute dashboard analytics inside MongoDB with $match, $group, and $count.</p>
+  </div></div>
+  <p>Dashboard and analytics metrics are computed entirely inside MongoDB using an aggregation pipeline — $match scopes results to the current user, $group buckets applications by status or month, and further stages compute derived fields like interview and offer conversion rates. No metric is calculated in Node after a full document scan.</p>
+  <div class="codewrap">
+    <div class="filename">server/controllers/analyticsController.js</div>
+<pre>Application.aggregate([
+{ $match: { userId } },
+{ $group: { _id: '$status', count: { $sum: 1 } } },
+{ $sort: { count: -1 } },
+{ $project: { _id: 0, status: '$_id', count: 1 } },
+]);</pre>
+  </div>
+  <div class="shot"><img src="assets/shot_03.png" alt="Aggregation source" /></div>
+  <p class="caption">Figure 12.1 – Analytics controller executing $match / $group on the applications collection.</p>
+  <div class="shot"><img src="assets/shot_06.png" alt="Charts from aggregation" /></div>
+  <p class="caption">Figure 12.2 – Charts bound to the aggregation result (status counts and monthly volume).</p>
+  <div class="callout"><strong>MongoDB best practice</strong>Aggregation pushes grouping to the storage engine, which already holds the documents—avoiding a full collection dump into Node.js memory.</div>
+</div>
+
+<div class="page">
+  <div class="feature-head"><div class="num">13</div><div>
+    <div class="kicker">NoSQL · MongoDB</div>
+    <h1>Text Search</h1>
+    <p class="one-line">Purpose — Rank keyword matches across company, role, recruiter, and notes.</p>
+  </div></div>
+  <p>A weighted MongoDB text index spans the company, role, recruiter name, and notes fields, with company weighted highest. When the user searches, the query uses $text with $search and sorts by textScore, so the most relevant matches surface first without a separate search engine.</p>
+  <div class="codewrap">
+    <div class="filename">server/models/Application.js + server/controllers/applicationController.js</div>
+<pre>applicationSchema.index(
+{ company: 'text', role: 'text', notes: 'text', recruiterName: 'text' },
+{ weights: { company: 10, role: 5, recruiterName: 3, notes: 1 } }
+);
+// filter.$text = { $search: q.trim() };
+// query = Application.find(filter, { score: { $meta: 'textScore' } });</pre>
+  </div>
+  <div class="shot"><img src="assets/shot_12.png" alt="Google text search" /></div>
+  <p class="caption">Figure 13.1 – Search board returning a ranked match for the company keyword “Google”.</p>
+  <div class="callout perf"><strong>Performance insight</strong>A single weighted text index replaces naive regex scans. Company names outrank notes because of the 10:1 weight ratio.</div>
+</div>
+
+<div class="page">
+  <div class="feature-head"><div class="num">14</div><div>
+    <div class="kicker">NoSQL · MongoDB</div>
+    <h1>GridFS File Storage</h1>
+    <p class="one-line">Purpose — Store resume and cover-letter binaries in MongoDB, linked to the application row.</p>
+  </div></div>
+  <p>Uploaded resumes and cover letters are streamed directly into MongoDB using GridFS rather than the local filesystem, via a GridFSBucket on the 'documents' bucket. The returned file id is stored on the Application document, and files are streamed back out (or deleted) on demand, keeping documents co-located with the data they belong to.</p>
+  <div class="codewrap">
+    <div class="filename">server/config/gridfs.js</div>
+<pre>function uploadBuffer({ buffer, filename, contentType, metadata }) {
+const bucket = getBucket();
+return new Promise((resolve, reject) => {
+const uploadStream = bucket.openUploadStream(filename, { contentType, metadata });
+uploadStream.on('finish', () => resolve(uploadStream.id));
+uploadStream.end(buffer);
+});
+}</pre>
+  </div>
+  <div class="shot"><img src="assets/shot_14.png" alt="Uploaded files in UI" /></div>
+  <p class="caption">Figure 14.1 – UI showing resume and cover letter linked to the Razorpay application.</p>
+  <div class="callout"><strong>MongoDB best practice</strong>GridFS splits files into chunks while preserving filename, content type, and application metadata for exact retrieval.</div>
+</div>
+
+<div class="page">
+  <div class="kicker">Synthesis</div>
+  <h1>Project Highlights</h1>
+  <hr class="rule" />
+  <div class="cards two">
+    <div class="card"><div class="icon">M</div><h3>MERN Stack Architecture</h3><p class="small">A single-language path from React views through Express to MongoDB, simplifying deployment and code review.</p></div>
+    <div class="card"><div class="icon">G</div><h3>MongoDB GridFS Integration</h3><p class="small">Resumes and cover letters stream into the documents bucket and remain referenced by application ObjectIds.</p></div>
+    <div class="card"><div class="icon">Σ</div><h3>Aggregation Pipeline Analytics</h3><p class="small">Status mix, monthly volume, and conversion percentages are computed with $match, $group, $sum, and $cond.</p></div>
+    <div class="card"><div class="icon">⚡</div><h3>Compound Indexing</h3><p class="small">userId+status, userId+appliedDate, and userId+interviewDate keep filters and sorts index-backed.</p></div>
+    <div class="card"><div class="icon">CRUD</div><h3>Full CRUD Operations</h3><p class="small">Create, paginated read, validated update, and delete—including GridFS cleanup—are exposed as authenticated REST routes.</p></div>
+    <div class="card"><div class="icon">T</div><h3>Weighted Text Search</h3><p class="small">A native $text index ranks company names above roles, recruiters, and free-text notes.</p></div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="kicker">Impact</div>
+  <h1>Real-World Applications</h1>
+  <hr class="rule" />
+  <p>Although built as an academic demonstration of MongoDB, the same pipeline model appears in several professional settings.</p>
+  <div class="cards two" style="margin-top:12px">
+    <div class="card"><div class="icon">01</div><h3>College placement tracking</h3><p class="small">Training and placement cells can monitor student applications, OA dates, and offer conversion by batch.</p></div>
+    <div class="card"><div class="icon">02</div><h3>Internship management</h3><p class="small">Interns juggle many short cycles; a status board and 7-day alerts reduce missed assessments.</p></div>
+    <div class="card"><div class="icon">03</div><h3>Recruitment agencies</h3><p class="small">Consultants attach role-specific CVs (GridFS) while keeping a per-consultant (userId) workspace.</p></div>
+    <div class="card"><div class="icon">04</div><h3>Personal career management</h3><p class="small">Individual candidates replace spreadsheets with searchable notes, recruiter contacts, and analytics.</p></div>
+    <div class="card"><div class="icon">05</div><h3>HR candidate tracking</h3><p class="small">The same schema maps to inbound applicants if “company” is inverted to “candidate,” proving the model’s flexibility.</p></div>
+    <div class="card"><div class="icon">06</div><h3>Campus hackathon / lab use</h3><p class="small">The project is a complete case study for DBMS labs covering indexes, aggregation, and GridFS in one codebase.</p></div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="kicker">Academics</div>
+  <h1>Learning Outcomes</h1>
+  <hr class="rule" />
+  <p>The implementation required applying lecture concepts in a running system rather than isolated queries.</p>
+  <div class="cards two">
+    <div class="card"><ul class="check small">
+      <li>React component architecture (pages, layout, auth context)</li>
+      <li>Express REST APIs with middleware</li>
+      <li>MongoDB data modeling and ObjectId referencing</li>
+      <li>Mongoose schema validation and enums</li>
+      <li>CRUD with owner-scoped queries</li>
+    </ul></div>
+    <div class="card"><ul class="check small">
+      <li>Aggregation pipelines for analytics</li>
+      <li>Single, compound, and text indexes</li>
+      <li>Date-range querying for interviews</li>
+      <li>GridFS upload, download, and delete</li>
+      <li>Full-stack integration and JWT sessions</li>
+    </ul></div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="kicker">Roadmap</div>
+  <h1>Future Enhancements</h1>
+  <hr class="rule" />
+  <div class="timeline">
+    <div class="item"><b>Near term — Email reminders</b><p class="small">SMTP or campus mail hooks for OA windows already stored as interviewDate.</p></div>
+    <div class="item"><b>Near term — Calendar integration</b><p class="small">Export upcoming interviews as ICS so dates appear in Google Calendar.</p></div>
+    <div class="item"><b>Mid term — Resume parsing</b><p class="small">Extract skills from GridFS PDFs to suggest missing keywords per role.</p></div>
+    <div class="item"><b>Mid term — Resume scoring</b><p class="small">Score tailored CVs against the job description attached as jobUrl.</p></div>
+    <div class="item"><b>Mid term — Company insights</b><p class="small">Aggregate response times by company across a user’s history.</p></div>
+    <div class="item"><b>Later — AI interview preparation</b><p class="small">Prompt packs keyed to role and notes already captured on the application.</p></div>
+    <div class="item"><b>Later — Multi-user collaboration</b><p class="small">Shared workspaces for placement cells, with role-based access on top of userId.</p></div>
+    <div class="item"><b>Later — Mobile application</b><p class="small">Reuse the same REST API; MongoDB aggregations remain the analytics source of truth.</p></div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="kicker">Close</div>
+  <h1>Conclusion</h1>
+  <hr class="rule" />
+  <p>This report has documented a complete MERN implementation of a Job Application Tracker in which MongoDB is not an afterthought but the mechanism that makes the product work. Fourteen functionalities were specified, implemented, and evidenced: a centralized dashboard, low-friction entry, pipeline status updates, analytics visualization, search and filter, upcoming-interview alerts, and file upload on the client; and referencing, schema validation, CRUD, compound indexing, aggregation, weighted text search, and GridFS on the server.</p>
+  <p>The architecture scales with the candidate’s history because queries are user-scoped and index-backed, files travel with their parent documents, and metrics are computed in the database engine. User experience follows from that design: one workspace, one status model, and one place for resumes. Academically, the project operationalizes NoSQL concepts that are easy to describe and harder to ship—especially aggregation pipelines and GridFS—inside an authenticated full-stack application suitable for laboratory demonstration and hardcopy evaluation.</p>
+  <p>We believe the system meets the dual goal of the DBMS project: a usable tool for a real student workflow, and a clear, inspectable mapping from MongoDB features to screens a faculty member can tick against a rubric.</p>
+  <p style="margin-top:24px"><b>Abhijay Mishra (24BCE2016)</b><br/><b>Naman Gupta (24BCE0768)</b><br/><span class="muted">School of Computer Science and Engineering · VIT Vellore · 2026</span></p>
+</div>
+
+<div class="page">
+  <div class="kicker">Appendix A</div>
+  <h1>MongoDB Verification</h1>
+  <hr class="rule" />
+  <p>The terminal capture below was produced against the running database instance. It lists collections, GridFS <code>documents.files</code> metadata (including the owning applicationId and kind), and the chunk count. Together these screenshots verify collections, GridFS storage, uploaded documents, and backend functionality.</p>
+  <div class="shot"><img src="assets/shot_04.png" alt="GridFS shell verification" /></div>
+  <p class="caption">Figure A.1 – Shell listing of users, applications, documents.files, and documents.chunks after a resume and cover-letter upload.</p>
+  <div class="shot"><img src="assets/shot_02.png" alt="Index source of truth" /></div>
+  <p class="caption">Figure A.2 – Index definitions that MongoDB materializes as userId_1_status_1, userId_1_appliedDate_-1, userId_1_interviewDate_1, and application_text_search.</p>
+  <div class="callout perf"><strong>How to read Figure A.1</strong>Each file document carries <code>metadata.kind</code> of resume or coverLetter and an <code>applicationId</code>, proving GridFS objects are not orphan blobs.</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,4 @@
+company,role,status,source,location,jobUrl,salary,appliedDate,interviewDate,followUpDate,offerDeadline,recruiterName,recruiterEmail,tags,notes
+CRED,Full Stack Intern,Applied,Company Site,Bangalore,,,2026-10-12,,2026-10-22,,,,fintech,Cover letter mentioned MongoDB aggregation project from DBMS course.
+Razorpay,SDE Intern,Applied,Referral,Bangalore,,,2026-09-17,,,,,,fintech;referral;dream,"Fintech stack: Node, Mongo, Kafka. Highlight this tracker as a portfolio piece."
+PhonePe,SDE Intern,Offer,Referral,Pune / Bangalore,,85000,2026-07-28,2026-08-22,,2026-10-29,Nikhil Rao,,fintech,Competing offer with Atlassian. Compare intern conversion rates and team.

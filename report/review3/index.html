@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Job Application Tracker Using MongoDB — Review 3</title>
+  <link rel="stylesheet" href="report.css" />
+</head>
+<body>
+<div class="page cover">
+  <img class="logo" src="assets/vit-logo.png" alt="Vellore Institute of Technology" />
+  <h1>Job Application Tracker Using MongoDB</h1>
+  <div class="sub">A MongoDB Based Full Stack Project for Application Pipeline Tracking</div>
+  <div class="badges"><span class="badge">MongoDB</span><span class="badge">Express</span><span class="badge">React</span><span class="badge">Node.js</span></div>
+  <div class="bar"></div>
+  <div class="review">Review 3</div>
+  <div class="meta">
+    <p>Submitted by</p>
+    <p><b>Abhijay Mishra</b><br/>Registration No: 24BCE2016</p>
+    <p style="margin-top:10px"><b>Naman Gupta</b><br/>Registration No: 24BCE0768</p>
+    <div class="bar"></div>
+    <p><b>School of Computer Science and Engineering (Core)</b><br/>SCOPE</p>
+    <p><b>Subject: Database Systems (BCSE302L)</b><br/>Professor: Dr. Rajeshkannan R</p>
+  </div>
+  <div class="footline">Vellore Institute of Technology</div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<section class="feat" data-key="1.1. Interview Rounds Timeline">
+<div class="part">Part 1: User-Defined Application Features</div>
+<p class="source">New features added in Review 3 — React flows backed by new API endpoints</p>
+<h2>1.1. Interview Rounds Timeline</h2>
+<p class="source">React: client/src/pages/ApplicationDetail.jsx · Backend: POST / PATCH / DELETE /api/applications/:id/rounds[/:roundId]</p>
+<h3>Description</h3>
+<p>Every application now has its own timeline of interview rounds — online assessment, technical, managerial, HR, or group discussion — each with a date, a result (Pending, Passed, Failed) and free-text feedback. The student adds a round from the detail page, marks it Passed or Failed with one click, and sees how many rounds have been cleared. A status history card records every stage change with its timestamp, so the full journey of an application is visible in one place.</p>
+<h3>Code Snippet</h3>
+<div class="codewrap"><div class="fn">client/src/pages/ApplicationDetail.jsx</div><pre>async function addRound(e) {
+  e.preventDefault();
+  const ok = await run(
+    api.post(`/applications/${app._id}/rounds`, { ...draft, scheduledAt: draft.scheduledAt || null })
+  );
+  if (ok) { setDraft(emptyRound); setAdding(false); }
+}
+function setResult(round, result) {
+  run(api.patch(`/applications/${app._id}/rounds/${round._id}`, { result }));
+}
+function removeRound(round) {
+  if (!window.confirm(`Remove "${round.name}"?`)) return;
+  run(api.delete(`/applications/${app._id}/rounds/${round._id}`));
+}</pre></div><h3>Screenshots</h3>
+</section>
+<div class="shot avoid"><p class="shot-label">1. Initial State — No Rounds Yet</p><img src="assets/ui3_rounds_initial.png" alt="Amazon application before any interview round is recorded." style="max-height:110mm" /><p class="caption">Figure 1.1 – Amazon application before any interview round is recorded.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 2</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<div class="shot avoid"><p class="shot-label">2. Action — Add a Round</p><img src="assets/ui3_rounds_form.png" alt="Round form filled with an Online assessment (OA) on 25 Oct with notes." style="max-height:240mm" /><p class="caption">Figure 1.2 – Round form filled with an Online assessment (OA) on 25 Oct with notes.</p></div>
+<div class="shot avoid"><p class="shot-label">3. Result — Timeline and Status History</p><img src="assets/ui3_rounds_result.png" alt="Recruiter call marked Passed, the OA pending, “1 of 2 cleared”, and the status history updated to OA." style="max-height:240mm" /><p class="caption">Figure 1.3 – Recruiter call marked Passed, the OA pending, “1 of 2 cleared”, and the status history updated to OA.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 3</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<section class="feat" data-key="1.2. Response Tracker (Ghosting Detector)">
+<div class="part">Part 1 · User-Defined</div>
+<h2>1.2. Response Tracker (Ghosting Detector)</h2>
+<p class="source">React: client/src/pages/Insights.jsx · Backend: GET /api/insights/ghosting?days=, GET /api/insights/trend</p>
+<h3>Description</h3>
+<p>Students rarely know which companies have silently dropped them. The Response tracker lists every application still waiting in Applied or OA, shows how many days it has been silent, ranks it within its source, and flags it as <b>ghosted</b> once it crosses a threshold the student picks (14, 21 or 30 days) — unless a round is already booked. It also ranks sources by how quickly they reply and plots applications per month, so the student learns where applying actually pays off.</p>
+<h3>Code Snippet</h3>
+<div class="codewrap"><div class="fn">client/src/pages/Insights.jsx</div><pre>async function load(threshold = days) {
+  const [g, t] = await Promise.all([
+    api.get('/insights/ghosting', { params: { days: threshold } }),
+    api.get('/insights/trend', { params: { months: 12 } }),
+  ]);
+  setGhost(g.data);
+  setTrend(t.data);
+}
+useEffect(() =&gt; { load(days); }, [days]);   // THRESHOLDS = [14, 21, 30]
+useLiveRefresh(() =&gt; load(days));</pre></div><h3>Screenshots</h3>
+</section>
+<div class="shot avoid"><p class="shot-label">1. Initial State — 21-Day Threshold</p><img src="assets/ui3_insights_21.png" alt="Response tracker: 5 applications waiting, Razorpay ghosted after 34 silent days, LinkedIn the fastest source." style="max-height:240mm" /><p class="caption">Figure 1.4 – Response tracker: 5 applications waiting, Razorpay ghosted after 34 silent days, LinkedIn the fastest source.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 4</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<div class="shot avoid"><p class="shot-label">2. Action — Switch to 14 Days</p><img src="assets/ui3_insights_14.png" alt="Threshold changed to 14 days; Zoho stays unflagged despite 47 silent days because a round is booked." style="max-height:240mm" /><p class="caption">Figure 1.5 – Threshold changed to 14 days; Zoho stays unflagged despite 47 silent days because a round is booked.</p></div>
+<div class="shot avoid"><p class="shot-label">3. Result — Source Ranking and Monthly Trend</p><img src="assets/ui3_insights_charts.png" alt="Reply speed ranked by source, and applications per month with empty months shown as zero." style="max-height:240mm" /><p class="caption">Figure 1.6 – Reply speed ranked by source, and applications per month with empty months shown as zero.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 5</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<section class="feat" data-key="1.3. Duplicate Application Guard">
+<div class="part">Part 1 · User-Defined</div>
+<h2>1.3. Duplicate Application Guard</h2>
+<p class="source">React: client/src/pages/ApplicationForm.jsx · Backend: GET /api/applications/duplicates, POST /api/applications (409 DUPLICATE_APPLICATION)</p>
+<h3>Description</h3>
+<p>While the student types a company and role, the form checks in the background whether an active application for the same pair already exists — ignoring letter case, so “google / software engineer intern” matches “Google / Software Engineer Intern”. A warning links straight to the existing record, and the server refuses to save the duplicate. Re-applying is still allowed once the earlier attempt is closed (for example a rejected Flipkart application).</p>
+<h3>Code Snippet</h3>
+<div class="codewrap"><div class="fn">client/src/pages/ApplicationForm.jsx</div><pre>useEffect(() =&gt; {
+  const company = form.company.trim();
+  const role = form.role.trim();
+  if (company.length &lt; 2 || !role || form.status === 'Rejected') {
+    setDuplicate(null);
+    return undefined;
+  }
+  const timer = setTimeout(async () =&gt; {
+    const { data } = await api.get('/applications/duplicates', {
+      params: { company, role, excludeId: id },
+    });
+    setDuplicate(data.duplicate);
+  }, 350);
+  return () =&gt; clearTimeout(timer);
+}, [form.company, form.role, form.status, id]);</pre></div><h3>Screenshots</h3>
+</section>
+<div class="shot avoid"><p class="shot-label">1. Action — Typing an Existing Company and Role</p><img src="assets/ui3_dup_warning.png" alt="“google / software engineer intern” triggers “You already applied here” with a link to the Interview-stage record." style="max-height:108mm" /><p class="caption">Figure 1.7 – “google / software engineer intern” triggers “You already applied here” with a link to the Interview-stage record.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 6</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<div class="shot avoid"><p class="shot-label">2. Result — Save Blocked</p><img src="assets/ui3_dup_blocked.png" alt="Submitting anyway is rejected by the server: an active application for this company and role already exists." style="max-height:240mm" /><p class="caption">Figure 1.8 – Submitting anyway is rejected by the server: an active application for this company and role already exists.</p></div>
+<div class="shot avoid"><p class="shot-label">3. Result — Re-applying After Rejection Is Allowed</p><img src="assets/ui3_dup_allowed.png" alt="“flipkart / sde intern” is saved because the earlier Flipkart application is Rejected." style="max-height:240mm" /><p class="caption">Figure 1.9 – “flipkart / sde intern” is saved because the earlier Flipkart application is Rejected.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 7</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<section class="feat" data-key="1.4. Custom Fields and Tags">
+<div class="part">Part 1 · User-Defined</div>
+<h2>1.4. Custom Fields and Tags</h2>
+<p class="source">React: client/src/pages/ApplicationForm.jsx, Applications.jsx · Backend: GET /api/applications?tag=&amp;field=&amp;value=, GET /api/applications/tags</p>
+<h3>Description</h3>
+<p>Every company asks for something different — a CGPA cutoff, a bond period, a tech stack, a work mode. Instead of fixed columns, the student adds any number of named custom fields and free tags to an application. Values are typed automatically (numbers, yes/no, text), shown as a grid on the detail page, and the Applications board can be filtered by a tag or by any custom field and value.</p>
+<h3>Code Snippet</h3>
+<div class="codewrap"><div class="fn">client/src/pages/ApplicationForm.jsx</div><pre>function fromFieldRows(rows) {
+  const out = {};
+  rows.forEach(({ key, value }) =&gt; {
+    const name = key.trim();
+    if (!name) return;
+    const text = value.trim();
+    if (text === 'yes' || text === 'true') out[name] = true;
+    else if (text === 'no' || text === 'false') out[name] = false;
+    else if (text !== '' &amp;&amp; !Number.isNaN(Number(text))) out[name] = Number(text);
+    else out[name] = text;
+  });
+  return out;
+}</pre></div><h3>Screenshots</h3>
+</section>
+<div class="shot avoid"><p class="shot-label">1. Action — Adding Custom Fields and Tags</p><img src="assets/ui3_fields_form.png" alt="Razorpay edited with tags fintech, referral, dream and fields Stack, CGPA cutoff, Work mode." style="max-height:120mm" /><p class="caption">Figure 1.10 – Razorpay edited with tags fintech, referral, dream and fields Stack, CGPA cutoff, Work mode.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 8</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<div class="shot avoid"><p class="shot-label">2. Result — Fields on the Detail Page</p><img src="assets/ui3_fields_detail.png" alt="Custom fields grid and tag chips on the Razorpay detail page." style="max-height:116mm" /><p class="caption">Figure 1.11 – Custom fields grid and tag chips on the Razorpay detail page.</p></div>
+<div class="shot avoid"><p class="shot-label">3. Result — Filter by Custom Field</p><img src="assets/ui3_filter_field.png" alt="Board filtered to CGPA cutoff = 8 returns only Google." style="max-height:116mm" /><p class="caption">Figure 1.12 – Board filtered to CGPA cutoff = 8 returns only Google.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 9</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<section class="feat" data-key="1.5. Live Notifications, Reminders and Theme Toggle">
+<div class="part">Part 1 · User-Defined</div>
+<h2>1.5. Live Notifications, Reminders and Theme Toggle</h2>
+<p class="source">React: client/src/components/NotificationBell.jsx, ThemeToggle.jsx · Backend: GET /api/notifications, GET /api/notifications/stream (Server-Sent Events)</p>
+<h3>Description</h3>
+<p>A notification bell in the sidebar collects reminders the student would otherwise miss — overdue follow-ups, follow-ups and assessments due soon, and offer reply deadlines — together with a feed of recent activity. The feed is live: when an application changes in another tab or through the API, a toast appears and every open page refreshes without reloading. A light/dark switch in the sidebar and on the login page remembers the student’s choice.</p>
+<h3>Code Snippet</h3>
+<div class="codewrap"><div class="fn">client/src/components/NotificationBell.jsx</div><pre>const source = new EventSource(liveStreamUrl());
+source.addEventListener('activity', (e) =&gt; {
+  const payload = JSON.parse(e.data);
+  setData((prev) =&gt; ({ ...prev, unread: prev.unread + 1,
+    activity: [payload.notification, ...prev.activity].slice(0, 30) }));
+  setFlash(payload.notification.message);
+  window.dispatchEvent(new CustomEvent('jobtrack:activity', { detail: payload }));
+});
+// ThemeContext: document.documentElement.dataset.theme = theme;
+//               localStorage.setItem('jobtrack_theme', theme);</pre></div><h3>Screenshots</h3>
+</section>
+<div class="shot avoid"><p class="shot-label">1. Action — Open the Notification Bell</p><img src="assets/ui3_bell_panel.png" alt="Reminders (overdue, follow-up, assessment, offer deadline) and the live activity feed." style="max-height:126mm" /><p class="caption">Figure 1.13 – Reminders (overdue, follow-up, assessment, offer deadline) and the live activity feed.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 10</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<div class="shot avoid"><p class="shot-label">2. Result — Live Update Toast</p><img src="assets/ui3_live_toast.png" alt="CRED moved to OA elsewhere; the toast “Live · CRED moved to OA” appears and the list refreshes." style="max-height:116mm" /><p class="caption">Figure 1.14 – CRED moved to OA elsewhere; the toast “Live · CRED moved to OA” appears and the list refreshes.</p></div>
+<div class="shot avoid"><p class="shot-label">3. Result — Dark Mode</p><img src="assets/ui3_theme_dark.png" alt="Dashboard after one click on the sidebar toggle (every other screenshot in this report is light mode); the choice is remembered." style="max-height:116mm" /><p class="caption">Figure 1.15 – Dashboard after one click on the sidebar toggle (every other screenshot in this report is light mode); the choice is remembered.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 11</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<section class="feat" data-key="1.6. Offer Comparison">
+<div class="part">Part 1 · User-Defined</div>
+<h2>1.6. Offer Comparison</h2>
+<p class="source">React: client/src/pages/Offers.jsx · Backend: GET /api/insights/offers</p>
+<h3>Description</h3>
+<p>When more than one offer arrives, the student has to decide quickly. The Compare offers page ranks every offer by stipend, shows how far each one is below the best, counts down to the reply deadline, and lines the offers up side by side — including how long each took and how many rounds were cleared. Any custom fields added to the offers (bond months, PPO chance, work mode) automatically become extra rows in the comparison table.</p>
+<h3>Code Snippet</h3>
+<div class="codewrap"><div class="fn">client/src/pages/Offers.jsx</div><pre>function load() {
+  api.get('/insights/offers').then(({ data: res }) =&gt; setData(res));
+}
+useEffect(load, []);
+useLiveRefresh(load);
+
+const { offers, fieldNames } = data;
+{offers.map((offer) =&gt; (
+  &lt;div className={`card offer-card ${offer.stipendRank === 1 ? 'best' : ''}`}&gt;
+    &lt;span className="offer-rank"&gt;#{offer.stipendRank}&lt;/span&gt; ...
+))}</pre></div><h3>Screenshots</h3>
+</section>
+<div class="shot avoid"><p class="shot-label">1. Result — Compare Offers Page</p><img src="assets/ui3_offers_page.png" alt="Atlassian ranked #1 by stipend; PhonePe ₹5,000 below the best offer with 8 days left." style="max-height:240mm" /><p class="caption">Figure 1.16 – Atlassian ranked #1 by stipend; PhonePe ₹5,000 below the best offer with 8 days left.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 12</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<div class="shot avoid"><p class="shot-label">2. Offer Cards</p><img src="assets/ui3_offers_cards.png" alt="Rank, stipend, gap to the best offer, and a colour-coded reply deadline." style="max-height:240mm" /><p class="caption">Figure 1.17 – Rank, stipend, gap to the best offer, and a colour-coded reply deadline.</p></div>
+<div class="shot avoid"><p class="shot-label">3. Side-by-Side Table</p><img src="assets/ui3_offers_table.png" alt="Built-in rows plus the custom fields Bond months, PPO chance and Work mode." style="max-height:240mm" /><p class="caption">Figure 1.18 – Built-in rows plus the custom fields Bond months, PPO chance and Work mode.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 13</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<section class="feat" data-key="1.7. CSV Import and Export">
+<div class="part">Part 1 · User-Defined</div>
+<h2>1.7. CSV Import and Export</h2>
+<p class="source">React: client/src/pages/Applications.jsx · Backend: POST /api/applications/import, GET /api/applications/export</p>
+<h3>Description</h3>
+<p>Most students already keep a spreadsheet of applications. Import CSV reads that sheet, validates each row, saves the good ones in one go, and reports exactly which rows were skipped as duplicates or rejected and why. Export CSV downloads the current board — respecting any status, tag or field filter — so the data can be shared or backed up in Excel or Google Sheets.</p>
+<h3>Code Snippet</h3>
+<div class="codewrap"><div class="fn">client/src/pages/Applications.jsx</div><pre>async function importFile(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  try {
+    const csv = await file.text();
+    const { data } = await api.post('/applications/import', { csv });
+    setResult(data);   // { inserted, totalRows, duplicates[], rejected[] }
+    onDone();
+  } catch (err) {
+    setError(err.response?.data?.message || 'Could not import this file.');
+  }
+}
+// Export: downloadApplicationsCsv(filterParams()) -&gt; GET /applications/export</pre></div><h3>Screenshots</h3>
+</section>
+<div class="shot avoid"><p class="shot-label">1. Initial State — Import Panel</p><img src="assets/ui3_import_panel.png" alt="Import panel listing the required and optional CSV columns." style="max-height:240mm" /><p class="caption">Figure 1.19 – Import panel listing the required and optional CSV columns.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 14</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<div class="shot avoid"><p class="shot-label">2. Result — Import Summary</p><img src="assets/ui3_import_result.png" alt="3 of 5 rows imported; row 5 skipped as a duplicate of Amazon, row 6 rejected for a missing role." style="max-height:240mm" /><p class="caption">Figure 1.20 – 3 of 5 rows imported; row 5 skipped as a duplicate of Amazon, row 6 rejected for a missing role.</p></div>
+<div class="shot avoid"><p class="shot-label">3. Result — Exported CSV</p><img src="assets/csv_export.png" alt="Export of the board filtered to #fintech: CRED, Razorpay and PhonePe." style="max-height:240mm" /><p class="caption">Figure 1.21 – Export of the board filtered to #fintech: CRED, Razorpay and PhonePe.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 15</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<section class="feat" data-key="2.1. Embedded Sub-documents and Array Update Operators">
+<div class="part">Part 2: Advanced NoSQL / MongoDB DBMS Features</div>
+<p class="source">New MongoDB features added in Review 3 — verified in the MongoDB shell on a replica set</p>
+<h2>2.1. Embedded Sub-documents and Array Update Operators</h2>
+<p class="source">Backend: server/models/Application.js (roundSchema, statusEventSchema), server/controllers/applicationController.js</p>
+<h3>Description</h3>
+<p>Interview rounds and status history are stored as arrays of embedded sub-documents inside the application, because they are always read together with it and never queried alone. Rounds are added with <b>$push</b> using <b>$each</b> + <b>$sort</b> so the array stays in date order, a single round is edited in place with the positional filtered operator <b>$[round]</b> and <b>arrayFilters</b>, and removed with <b>$pull</b>. Status changes are appended to statusHistory with <b>$slice</b> to cap its size.</p>
+<h3>Code Snippet</h3>
+<div class="codewrap"><div class="fn">server/controllers/applicationController.js</div><pre>// add, keeping rounds sorted by date
+{ $push: { rounds: { $each: [round], $sort: { scheduledAt: 1 } } } }
+
+// edit one round in place
+Application.findOneAndUpdate(
+  { _id: req.params.id, userId, 'rounds._id': req.params.roundId },
+  { $set: { 'rounds.$[round].result': 'Passed' } },
+  { new: true, arrayFilters: [{ 'round._id': new ObjectId(req.params.roundId) }] }
+);
+
+// remove
+{ $pull: { rounds: { _id: req.params.roundId } } }</pre></div><h3>Screenshots</h3>
+</section>
+<div class="shot avoid"><p class="shot-label">1. MongoDB Shell — $push, arrayFilters, $slice</p><img src="assets/mongo3_embedded_a.png" alt="Three updates on Amazon: push two rounds sorted by date, mark one Passed via arrayFilters, append to statusHistory." style="max-height:240mm" /><p class="caption">Figure 2.1 – Three updates on Amazon: push two rounds sorted by date, mark one Passed via arrayFilters, append to statusHistory.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 16</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<div class="shot avoid"><p class="shot-label">2. MongoDB Shell — Resulting Document</p><img src="assets/mongo3_embedded_b.png" alt="Amazon now embeds both rounds (Recruiter call Passed) and two status events." style="max-height:240mm" /><p class="caption">Figure 2.2 – Amazon now embeds both rounds (Recruiter call Passed) and two status events.</p></div>
+<div class="shot avoid"><p class="shot-label">3. UI — Rounds Rendered from the Array</p><img src="assets/ui3_rounds_result.png" alt="The same embedded arrays drive the rounds timeline and status history." style="max-height:240mm" /><p class="caption">Figure 2.3 – The same embedded arrays drive the rounds timeline and status history.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 17</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<section class="feat" data-key="2.2. Window Functions — $setWindowFields and $dateDiff">
+<div class="part">Part 2 · MongoDB</div>
+<h2>2.2. Window Functions — $setWindowFields and $dateDiff</h2>
+<p class="source">Backend: server/controllers/insightsController.js · GET /api/insights/ghosting, GET /api/insights/offers</p>
+<h3>Description</h3>
+<p>The Response tracker and Offer comparison are computed entirely in the aggregation pipeline. <b>$dateDiff</b> turns the last status change into “days waiting”. <b>$setWindowFields</b> then partitions by source and computes, for every document, its <b>$rank</b> inside that source and the source’s <b>$avg</b> wait over the whole partition — without collapsing documents like $group would. The same operator ranks sources with <b>$denseRank</b> and ranks offers by stipend.</p>
+<h3>Code Snippet</h3>
+<div class="codewrap"><div class="fn">server/controllers/insightsController.js</div><pre>{ $addFields: { daysWaiting: {
+    $dateDiff: { startDate: '$lastMove', endDate: '$$NOW', unit: 'day' } } } },
+{ $setWindowFields: {
+    partitionBy: '$source',
+    sortBy: { daysWaiting: -1 },
+    output: {
+      rankInSource: { $rank: {} },
+      sourceAvgWait: { $avg: '$daysWaiting',
+                       window: { documents: ['unbounded', 'unbounded'] } },
+    } } },</pre></div><h3>Screenshots</h3>
+</section>
+<div class="shot avoid"><p class="shot-label">1. MongoDB Shell — $dateDiff + $setWindowFields</p><img src="assets/mongo3_window.png" alt="Each waiting application keeps its own row with daysWaiting, rankInSource and sourceAvgWait." style="max-height:240mm" /><p class="caption">Figure 2.4 – Each waiting application keeps its own row with daysWaiting, rankInSource and sourceAvgWait.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 18</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<div class="shot avoid"><p class="shot-label">2. UI — $denseRank over Sources</p><img src="assets/ui3_insights_charts.png" alt="Reply-speed ranking by source and the monthly trend computed in the pipeline." style="max-height:240mm" /><p class="caption">Figure 2.5 – Reply-speed ranking by source and the monthly trend computed in the pipeline.</p></div>
+<div class="shot avoid"><p class="shot-label">3. UI — $rank over Offers</p><img src="assets/ui3_offers_cards.png" alt="Offers ranked by stipend with the gap to the best offer from a window $max." style="max-height:240mm" /><p class="caption">Figure 2.6 – Offers ranked by stipend with the gap to the best offer from a window $max.</p></div><div class="feature-sep"></div>
+<section class="feat" data-key="2.3. Collation-Aware Partial Unique Index">
+<div class="part">Part 2 · MongoDB</div>
+<h2>2.3. Collation-Aware Partial Unique Index</h2>
+<p class="source">Backend: server/models/Application.js · Index: unique_active_company_role</p>
+<h3>Description</h3>
+<p>Duplicates are blocked by the database itself. A unique index on { userId, company, role } uses a case-insensitive <b>collation</b> (strength 2) and a <b>partialFilterExpression</b> so only active applications take part: “Google” and “GOOGLE” collide with E11000, yet re-applying after a rejection is allowed.</p>
+<h3>Code Snippet</h3>
+<div class="codewrap"><div class="fn">server/models/Application.js</div><pre>applicationSchema.index(
+  { userId: 1, company: 1, role: 1 },
+  {
+    name: 'unique_active_company_role',
+    unique: true,
+    collation: { locale: 'en', strength: 2 },
+    partialFilterExpression: { status: { $in: ACTIVE_STATUSES } },  // Saved … Offer
+  }
+);</pre></div></section>
+
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 19</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<h3>Screenshots</h3>
+<div class="shot avoid"><p class="shot-label">1. MongoDB Shell — Index Definition</p><img src="assets/mongo3_unique_a.png" alt="unique: true, collation strength 2 and the partial filter on active statuses." style="max-height:240mm" /><p class="caption">Figure 2.7 – unique: true, collation strength 2 and the partial filter on active statuses.</p></div>
+<div class="shot avoid"><p class="shot-label">2. MongoDB Shell — E11000 vs Allowed Insert</p><img src="assets/mongo3_unique_b.png" alt="“GOOGLE” is rejected with E11000; “flipkart” is accepted because the earlier one is Rejected." style="max-height:240mm" /><p class="caption">Figure 2.8 – “GOOGLE” is rejected with E11000; “flipkart” is accepted because the earlier one is Rejected.</p></div>
+<div class="shot avoid"><p class="shot-label">3. UI — Duplicate Blocked</p><img src="assets/ui3_dup_blocked.png" alt="The 409 from the index is shown to the student as a clear message." style="max-height:240mm" /><p class="caption">Figure 2.9 – The 409 from the index is shown to the student as a clear message.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 20</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<section class="feat" data-key="2.4. Multikey Index on Tags and Compound Wildcard Index">
+<div class="part">Part 2 · MongoDB</div>
+<h2>2.4. Multikey Index on Tags and Compound Wildcard Index</h2>
+<p class="source">Backend: server/models/Application.js · Indexes: user_tags_multikey, user_custom_fields_wildcard</p>
+<h3>Description</h3>
+<p>Tags are an array, so an index on { userId, tags } becomes a <b>multikey index</b> with one entry per tag, and a filter like tags: "fintech" is an index scan. Custom fields have names the developer never knows in advance; a <b>compound wildcard index</b> on { userId, "customFields.$**" } (MongoDB 7.0+) indexes every sub-field, so a query on any field — CGPA cutoff, Bond months — still uses an index while staying scoped to the user.</p>
+<h3>Code Snippet</h3>
+<div class="codewrap"><div class="fn">server/models/Application.js</div><pre>tags: { type: [String], default: [],
+  set: (values) =&gt; [...new Set((values || []).map((t) =&gt; String(t).trim().toLowerCase()).filter(Boolean))] },
+customFields: { type: mongoose.Schema.Types.Mixed, default: {} },
+
+applicationSchema.index({ userId: 1, tags: 1 }, { name: 'user_tags_multikey' });
+applicationSchema.index(
+  { userId: 1, 'customFields.$**': 1 },
+  { name: 'user_custom_fields_wildcard' }
+);</pre></div><h3>Screenshots</h3>
+</section>
+<div class="shot avoid"><p class="shot-label">1. MongoDB Shell — Indexes and Chosen Plans</p><img src="assets/mongo3_flexible_a.png" alt="Both indexes exist; the tag query and custom-field query each use IXSCAN on their index." style="max-height:240mm" /><p class="caption">Figure 2.10 – Both indexes exist; the tag query and custom-field query each use IXSCAN on their index.</p></div>
+<div class="shot avoid"><p class="shot-label">2. MongoDB Shell — Queries</p><img src="assets/mongo3_flexible_b.png" alt="tags: "fintech" returns CRED, Razorpay, PhonePe; CGPA cutoff ≥ 8 returns Google and Goldman Sachs." style="max-height:240mm" /><p class="caption">Figure 2.11 – tags: "fintech" returns CRED, Razorpay, PhonePe; CGPA cutoff ≥ 8 returns Google and Goldman Sachs.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 21</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<div class="shot avoid"><p class="shot-label">3. UI — Tag Filter</p><img src="assets/ui3_filter_tag.png" alt="The board filtered by #fintech runs the same multikey query." style="max-height:240mm" /><p class="caption">Figure 2.12 – The board filtered by #fintech runs the same multikey query.</p></div><div class="feature-sep"></div>
+<section class="feat" data-key="2.5. Change Streams with Pre-Images">
+<div class="part">Part 2 · MongoDB</div>
+<h2>2.5. Change Streams with Pre-Images</h2>
+<p class="source">Backend: server/config/realtime.js, server/config/db.js (single-node replica set) · GET /api/notifications/stream</p>
+<h3>Description</h3>
+<p>The API opens a <b>change stream</b> on the applications collection — a feed of every insert, update and delete read from the replica set’s oplog. Each event is turned into a stored notification and pushed to that user’s open tabs over Server-Sent Events. <b>changeStreamPreAndPostImages</b> is enabled with collMod so that <b>fullDocumentBeforeChange</b> is available: a delete event can still say which company was removed. Change streams need a replica set, so the embedded database now starts as a single-node replica set.</p>
+<h3>Code Snippet</h3>
+<div class="codewrap"><div class="fn">server/config/realtime.js</div><pre>await db.command({
+  collMod: 'applications',
+  changeStreamPreAndPostImages: { enabled: true },
+});
+stream = Application.watch(
+  [{ $match: { operationType: { $in: ['insert', 'update', 'replace', 'delete'] } } }],
+  { fullDocument: 'updateLookup', fullDocumentBeforeChange: 'whenAvailable' }
+);
+stream.on('change', (change) =&gt; handleChange(change));
+// handleChange -&gt; Notification.create(...) -&gt; publish(userId, 'activity', ...)</pre></div></section>
+
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 22</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<h3>Screenshots</h3>
+<div class="shot avoid"><p class="shot-label">1. MongoDB Shell — Replica Set and Pre-Images</p><img src="assets/mongo3_changestream_a.png" alt="db.hello() shows replica set testset; collMod enables pre- and post-images." style="max-height:91mm" /><p class="caption">Figure 2.13 – db.hello() shows replica set testset; collMod enables pre- and post-images.</p></div>
+<div class="shot avoid"><p class="shot-label">2. MongoDB Shell — Captured Events</p><img src="assets/mongo3_changestream_b.png" alt="update (CRED Applied → OA with before/after), insert and delete (Notion, with pre-image)." style="max-height:91mm" /><p class="caption">Figure 2.14 – update (CRED Applied → OA with before/after), insert and delete (Notion, with pre-image).</p></div>
+<div class="shot avoid"><p class="shot-label">3. UI — Event Delivered Live</p><img src="assets/ui3_live_toast.png" alt="The CRED update arrives in the browser as a toast within a second." style="max-height:91mm" /><p class="caption">Figure 2.15 – The CRED update arrives in the browser as a toast within a second.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 23</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<section class="feat" data-key="2.6. Gap Filling with $densify and $fill">
+<div class="part">Part 2 · MongoDB</div>
+<h2>2.6. Gap Filling with $densify and $fill</h2>
+<p class="source">Backend: server/controllers/insightsController.js · GET /api/insights/trend</p>
+<h3>Description</h3>
+<p>A plain <b>$group</b> by month silently skips months with no applications, which makes a monthly chart look continuous when it is not. After grouping with <b>$dateTrunc</b>, <b>$densify</b> inserts the missing months across the last 12 months and <b>$fill</b> sets their count to 0. A final <b>$setWindowFields</b> computes a 3-month rolling average and a running total over the now-complete series, and the UI reports how many months were empty.</p>
+<h3>Code Snippet</h3>
+<div class="codewrap"><div class="fn">server/controllers/insightsController.js</div><pre>{ $group: { _id: { $dateTrunc: { date: '$appliedDate', unit: 'month' } },
+            count: { $sum: 1 } } },
+{ $project: { _id: 0, month: '$_id', count: 1 } },
+{ $densify: { field: 'month', range: { step: 1, unit: 'month', bounds: [lower, upper] } } },
+{ $fill: { output: { count: { value: 0 } } } },
+{ $setWindowFields: { sortBy: { month: 1 }, output: {
+    rollingAvg: { $avg: '$count', window: { documents: [-2, 'current'] } },
+    cumulative: { $sum: '$count', window: { documents: ['unbounded', 'current'] } } } } }</pre></div><h3>Screenshots</h3>
+</section>
+<div class="shot avoid"><p class="shot-label">1. MongoDB Shell — $group Alone</p><img src="assets/mongo3_densify_a.png" alt="Only 6 months appear; February, April, May and June are missing." style="max-height:240mm" /><p class="caption">Figure 2.16 – Only 6 months appear; February, April, May and June are missing.</p></div>
+<div class="shot avoid"><p class="shot-label">2. MongoDB Shell — With $densify + $fill</p><img src="assets/mongo3_densify_b.png" alt="All 12 months present; filled months have count 0 and the rolling average stays honest." style="max-height:240mm" /><p class="caption">Figure 2.17 – All 12 months present; filled months have count 0 and the rolling average stays honest.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 24</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<div class="shot avoid"><p class="shot-label">3. UI — Applications per Month</p><img src="assets/ui3_insights_charts.png" alt="Empty months drawn as zero bars with the 3-month average line." style="max-height:240mm" /><p class="caption">Figure 2.18 – Empty months drawn as zero bars with the 3-month average line.</p></div><div class="feature-sep"></div>
+<section class="feat" data-key="2.7. Query Plan Inspection with explain()">
+<div class="part">Part 2 · MongoDB</div>
+<h2>2.7. Query Plan Inspection with explain()</h2>
+<p class="source">Backend: server/controllers/applicationController.js · GET /api/applications/explain</p>
+<h3>Description</h3>
+<p>The Query plan button on the Applications board runs <b>explain("executionStats")</b> on exactly the query the board is showing, and runs it again with <b>hint({ $natural: 1 })</b> to force a collection scan. Both plans are shown side by side — winning stages, index used, keys and documents examined — so the student can see that the tag filter and custom-field filter are served by the multikey and wildcard indexes and examine only the matching documents instead of the whole collection.</p>
+<h3>Code Snippet</h3>
+<div class="codewrap"><div class="fn">server/controllers/applicationController.js</div><pre>async function explainQuery(req, res) {
+  const filter = buildListFilter(req);   // same filter as the board
+  const indexed = await Application.find(filter).explain('executionStats');
+  const plan = summarizePlan(indexed);
+
+  const scanned = await Application.find(filter)
+    .hint({ $natural: 1 })
+    .explain('executionStats');
+  res.json({ filter, plan, collectionScan: summarizePlan(scanned) });
+}</pre></div></section>
+
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 25</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<h3>Screenshots</h3>
+<div class="shot avoid"><p class="shot-label">1. MongoDB Shell — IXSCAN vs COLLSCAN</p><img src="assets/mongo3_explain_a.png" alt="The fintech tag query examines 3 documents with the index and 16 with a forced collection scan." style="max-height:240mm" /><p class="caption">Figure 2.19 – The fintech tag query examines 3 documents with the index and 16 with a forced collection scan.</p></div>
+<div class="shot avoid"><p class="shot-label">2. UI — Tag Filter Plan</p><img src="assets/ui3_plan_tag.png" alt="FETCH → IXSCAN on user_tags_multikey: 3 keys, 3 documents; the collection scan reads all 17." style="max-height:240mm" /><p class="caption">Figure 2.20 – FETCH → IXSCAN on user_tags_multikey: 3 keys, 3 documents; the collection scan reads all 17.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 26</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<div class="shot avoid"><p class="shot-label">3. UI — Custom Field Plan</p><img src="assets/ui3_plan_field.png" alt="CGPA cutoff = 8 uses user_custom_fields_wildcard and examines 1 document instead of 17." style="max-height:240mm" /><p class="caption">Figure 2.21 – CGPA cutoff = 8 uses user_custom_fields_wildcard and examines 1 document instead of 17.</p></div><div class="feature-sep"></div>
+<section class="feat" data-key="Part 3: Tools &amp; Verification">
+<div class="part">Part 3: Tools &amp; Verification</div>
+<p class="source">Local running stack used for this review</p>
+<p>The system was demonstrated on a local MERN stack. MongoDB 7.0 ran on this machine as an embedded <b>single-node replica set</b> (required for change streams), the Express API at <b>http://localhost:5000</b>, and the React client at <b>http://localhost:5173</b>. Screenshots were taken from the running application in light mode, and every MongoDB output in Part 2 is real output captured from the same database.</p>
+<h3>Tools Used</h3>
+<p><b>Database:</b> MongoDB 7.0 (replica set, change streams, wildcard indexes) · <b>Backend:</b> Node.js, Express, Mongoose, Server-Sent Events · <b>Frontend:</b> React, Vite, Recharts · <b>Verification:</b> MongoDB shell commands, explain("executionStats"), browser testing.</p>
+</section>
+
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 27</span></div>
+</div><div class="page">
+<div class="running"><span>Abhijay Mishra 24BCE2016 · Naman Gupta 24BCE0768</span><span>Review 3 · BCSE302L</span></div>
+<div class="main">
+<h3>Screenshots</h3>
+<div class="shot avoid"><p class="shot-label">1. Running Frontend — Light Mode</p><img src="assets/ui3_login_light.png" alt="Application running locally at http://localhost:5173 with the theme toggle." style="max-height:240mm" /><p class="caption">Figure 3.1 – Application running locally at http://localhost:5173 with the theme toggle.</p></div>
+<div class="shot avoid"><p class="shot-label">2. Database and API Health</p><img src="assets/mongo3_stack.png" alt="Collections applications, notifications and users on replica set testset; /api/health reports changeStreams: true." style="max-height:240mm" /><p class="caption">Figure 3.2 – Collections applications, notifications and users on replica set testset; /api/health reports changeStreams: true.</p></div>
+</div>
+<div class="foot"><span>Job Application Tracker Using MongoDB</span><span>Page 28</span></div>
+</div>
+</body>
+</html>

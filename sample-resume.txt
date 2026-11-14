@@ -1,0 +1,6 @@
+Naman Sanjay Gupta
+B.Tech CSE, VIT Vellore — 24BCE0768
+Tailored resume for the JobTrack DBMS demonstration.
+
+Skills: MongoDB, Express, React, Node.js, aggregation pipelines, GridFS.
+Project: Job Application Tracker using MongoDB (with Abhijay Mishra, 24BCE2016).
